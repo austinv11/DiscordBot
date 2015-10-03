@@ -25,7 +25,7 @@ import java.util.Optional;
 
 public class DiscordBot extends DiscordClient {
 	
-	public static final long startTime = System.currentTimeMillis();
+	public static long startTime;
 	public static DiscordBot instance;
 	public static ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
 	private static String[] credentials;
@@ -33,7 +33,6 @@ public class DiscordBot extends DiscordClient {
 	private static HashMap<String, Long> timeSinceLastMessage = new HashMap<>();
 	private static HashMap<String, Integer> messageCounter = new HashMap<>();
 	private static HashMap<String, Long> cooldown = new HashMap<>();
-	public static boolean voiceEnabled = false;
 	
 	public DiscordBot(String email, String password) throws URISyntaxException, IOException, ParseException {
 		super(email, password);
@@ -190,12 +189,14 @@ public class DiscordBot extends DiscordClient {
 	
 	public static void main(String[] args) {
 		try {
+			startTime = System.currentTimeMillis();
 			EventBus.registerHandler(BaseHandler.class);
 			EventBus.registerCommand(new HelpCommand());
 			EventBus.registerCommand(new EvaluateCommand());
 			EventBus.registerCommand(new UptimeCommand());
 			EventBus.registerCommand(new NameCommand());
 			EventBus.registerCommand(new MeCommand());
+			EventBus.registerCommand(new RestartCommand());
 			credentials = getCredentials();
 			instance = new DiscordBot(credentials[0], credentials[1]);
 			for (ScriptEngineFactory factory : scriptEngineManager.getEngineFactories()) {
@@ -304,5 +305,11 @@ public class DiscordBot extends DiscordClient {
 					return true;
 		}
 		return false;
+	}
+	
+	public static void restart() {
+		System.out.println("Restarting the bot...");
+		instance.close();
+		main(new String[0]);
 	}
 }
