@@ -61,7 +61,7 @@ public class UptimeCommand implements ICommand {
 		
 		long seconds = difference / secondsInMilli;
 		
-		result += "Uptime: "+days+" days, "+hours+" hours, "+minutes+" minutes, "+seconds+" secnds";
+		result += "Uptime: "+days+" days, "+hours+" hours, "+minutes+" minutes, "+seconds+" seconds";
 		
 		return Optional.of(result);
 	}
