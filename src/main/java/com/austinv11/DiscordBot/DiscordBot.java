@@ -6,10 +6,7 @@ import com.austinv11.DiscordBot.api.commands.ICommand;
 import com.austinv11.DiscordBot.api.events.MessageEvent;
 import com.austinv11.DiscordBot.api.events.PresenceChangeEvent;
 import com.austinv11.DiscordBot.api.events.StartTypingEvent;
-import com.austinv11.DiscordBot.commands.EvaluateCommand;
-import com.austinv11.DiscordBot.commands.HelpCommand;
-import com.austinv11.DiscordBot.commands.NameCommand;
-import com.austinv11.DiscordBot.commands.UptimeCommand;
+import com.austinv11.DiscordBot.commands.*;
 import com.austinv11.DiscordBot.handler.BaseHandler;
 import com.austinv11.DiscordBot.reference.Config;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -36,6 +33,7 @@ public class DiscordBot extends DiscordClient {
 	private static HashMap<String, Long> timeSinceLastMessage = new HashMap<>();
 	private static HashMap<String, Integer> messageCounter = new HashMap<>();
 	private static HashMap<String, Long> cooldown = new HashMap<>();
+	public static boolean voiceEnabled = false;
 	
 	public DiscordBot(String email, String password) throws URISyntaxException, IOException, ParseException {
 		super(email, password);
@@ -69,6 +67,8 @@ public class DiscordBot extends DiscordClient {
 	@Override
 	public void onMessageReceive(Message message) {
 		super.onMessageReceive(message);
+		System.out.println("["+message.getTimestamp().toString()+"]"+message.getAuthor().getName()+"("+
+				getChannelByID(message.getChannelID()).getName()+")"+": "+message.getContent());
 		long currentTime = System.currentTimeMillis();
 		if (cooldown.containsKey(message.getAuthor().getID())) {
 			if (currentTime - cooldown.get(message.getAuthor().getID()) >= (long) (Config.cooldownTime*1000)) {
@@ -141,6 +141,8 @@ public class DiscordBot extends DiscordClient {
 	@Override
 	public void onMessageSend(Message message) {
 		super.onMessageSend(message);
+		System.out.println("["+message.getTimestamp().toString()+"]"+message.getAuthor().getName()+"("+
+				getChannelByID(message.getChannelID()).getName()+")"+": "+message.getContent());
 		EventBus.postEvent(new MessageEvent.MessageSentEvent(message));
 		messageCache.get(message.getChannelID()).put(message.getMessageID(), new Message(message.getMessageID(), message.getContent(),
 				message.getAuthor(), message.getChannelID(), message.getMentionedIDs(), message.getTimestamp()));
@@ -193,11 +195,9 @@ public class DiscordBot extends DiscordClient {
 			EventBus.registerCommand(new EvaluateCommand());
 			EventBus.registerCommand(new UptimeCommand());
 			EventBus.registerCommand(new NameCommand());
+			EventBus.registerCommand(new MeCommand());
 			credentials = getCredentials();
 			instance = new DiscordBot(credentials[0], credentials[1]);
-			File engines = new File("./engines");
-			if (!engines.exists())
-				engines.mkdir();
 			for (ScriptEngineFactory factory : scriptEngineManager.getEngineFactories()) {
 				System.out.println("Loaded script engine '"+factory.getEngineName()+"' v"+factory.getEngineVersion()+
 						" for language: "+factory.getLanguageName()+" v"+factory.getLanguageVersion());
