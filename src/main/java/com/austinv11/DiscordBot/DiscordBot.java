@@ -197,6 +197,7 @@ public class DiscordBot extends DiscordClient {
 			EventBus.registerCommand(new NameCommand());
 			EventBus.registerCommand(new MeCommand());
 			EventBus.registerCommand(new RestartCommand());
+			EventBus.registerCommand(new WhoisCommand());
 			credentials = getCredentials();
 			instance = new DiscordBot(credentials[0], credentials[1]);
 			for (ScriptEngineFactory factory : scriptEngineManager.getEngineFactories()) {
