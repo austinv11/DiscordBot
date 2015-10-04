@@ -22,7 +22,7 @@ public class Database {
 	
 	public void createTable(String tableName, Key... rows) throws SQLException {
 		if (!isConnected)
-			throw new SQLException("Database not connected!");
+			connect();
 		Statement statement = connection.createStatement();
 		String instruction = "CREATE TABLE "+tableName.toUpperCase()+" (";
 		for (Key key : rows) {
@@ -36,11 +36,12 @@ public class Database {
 		instruction += ");";
 		statement.executeUpdate(instruction);
 		statement.close();
+		disconnect();
 	}
 	
 	public void insert(String tableName, String[] keys, String[] values) throws SQLException {
 		if (!isConnected)
-			throw new SQLException("Database not connected!");
+			connect();
 		Statement statement = connection.createStatement();
 		connection.setAutoCommit(false);
 		String sql = "INSERT INTO "+tableName.toUpperCase()+" (";
@@ -55,32 +56,32 @@ public class Database {
 		statement.executeUpdate(sql);
 		connection.commit();
 		statement.close();
+		disconnect();
 	}
 	
 	public ResultSet openSelect(String tableName) throws SQLException {
-		if (!isConnected)
-			throw new SQLException("Database not connected!");
 		if (selectStatement != null)
-			throw new SQLException("Select statement already in progress");
+			closeSelect();
+		if (!isConnected)
+			connect();
 		selectStatement = connection.createStatement();
 		selectSet = selectStatement.executeQuery("SELECT * FROM "+tableName.toUpperCase()+";");
 		return selectSet;
 	}
 	
 	public void closeSelect() throws SQLException {
-		if (!isConnected)
-			throw new SQLException("Database not connected!");
 		if (selectStatement == null)
 			throw new SQLException("No select statement in progress");
 		selectSet.close();
 		selectStatement.close();
 		selectSet = null;
 		selectStatement = null;
+		disconnect();
 	}
 	
 	public void uodate(String tableName, String primaryKey, String primaryKeyValue, HashMap<String, String> keysToUpdate) throws SQLException {
 		if (!isConnected)
-			throw new SQLException("Database not connected!");
+			connect();
 		Statement statement = connection.createStatement();
 		for (String key : keysToUpdate.keySet()) {
 			String sql = "UPDATE "+tableName.toUpperCase()+" set "+key.toUpperCase()+" = "+keysToUpdate.get(key)+
@@ -88,15 +89,17 @@ public class Database {
 			statement.executeUpdate(sql);
 		}
 		statement.close();
+		disconnect();
 	}
 	
 	public void delete(String tableName, String primaryKey, Object primaryKeyValue) throws SQLException {
 		if (!isConnected)
-			throw new SQLException("Database not connected!");
+			connect();
 		Statement statement = connection.createStatement();
 		String sql = "DELETE from "+tableName.toUpperCase()+" where "+primaryKey.toUpperCase()+"="+primaryKeyValue+";";
 		statement.executeUpdate(sql);
 		statement.close();
+		disconnect();
 	}
 	
 	public void connect() throws SQLException {

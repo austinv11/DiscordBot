@@ -33,7 +33,6 @@ public class DiscordBot extends DiscordClient {
 	public static ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
 	public static String ownerId;
 	public static Database db;
-	public static final String databaseFile = "permissions.db";
 	private static String[] credentials;
 	private static HashMap<String, HashMap<String, Message>> messageCache = new HashMap<>(); //TODO: Optimize
 	private static HashMap<String, Long> timeSinceLastMessage = new HashMap<>();
@@ -111,7 +110,8 @@ public class DiscordBot extends DiscordClient {
 				try {
 					for (ICommand command : EventBus.getAllCommands()) {
 						if (doesCommandMatch(command, message.getContent())) {
-							if (getUserPermissionLevel(message.getAuthor()) >= command.getPermissionLevel()) {
+							int commandLevel = command.getPermissionLevel();
+							if (getUserPermissionLevel(message.getAuthor()) >= commandLevel) {
 								try {
 									String params = message.getContent().contains(" ") ? message.getContent().replaceFirst(
 											message.getContent().split(" ")[0]+" ", "") : "";
@@ -204,7 +204,6 @@ public class DiscordBot extends DiscordClient {
 			instance = new DiscordBot(credentials[0], credentials[1]);
 			boolean needsTable = !new File(Config.databaseFile).exists();
 			db = new Database(Config.databaseFile);
-			db.connect();
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				@Override
 				public void run() {
@@ -377,7 +376,7 @@ public class DiscordBot extends DiscordClient {
 				if (user.getID().equals(set.getString("ID")))
 					return set.getInt("PERMISSION_LEVEL");
 			}
-			set.close();
+			db.closeSelect();
 			
 			db.insert("USERS", new String[]{"ID", "PERMISSION_LEVEL"}, new String[]{"'"+user.getID()+"'", String.valueOf(ICommand.DEFAULT)});
 		} catch (SQLException e) {
