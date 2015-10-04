@@ -24,4 +24,5 @@ dependencies {
     compile "net.tomp2p:opus-wrapper:1.3"
     compile "org.abstractj.kalium:kalium:0.4.0"
     compile "org.apache.commons:commons-lang3:3.4"
+    compile "org.xerial:sqlite-jdbc:3.7.2"
 }

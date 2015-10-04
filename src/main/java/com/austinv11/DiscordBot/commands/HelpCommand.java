@@ -41,6 +41,11 @@ public class HelpCommand implements ICommand {
 	}
 	
 	@Override
+	public int getDefaultPermissionLevel() {
+		return ICommand.ANYONE;
+	}
+	
+	@Override
 	public Optional<String> executeCommand(String parameters, User executor, Channel channel, Message commandMessage) throws CommandSyntaxException {
 		String result = "";
 		if (parameters == null || parameters.isEmpty()) {
@@ -57,6 +62,7 @@ public class HelpCommand implements ICommand {
 			for (ICommand command : commands) {
 				if (DiscordBot.doesCommandMatch(command, Config.commandDiscriminator+parameters)) {
 					result += "Help page for command '"+command.getCommand()+"':\n";
+					result += "Permission level: "+command.getPermissionLevel();
 					result += command.getHelpMessage()+"\n";
 					result += "Aliases: ";
 					for (String alias : command.getAliases())

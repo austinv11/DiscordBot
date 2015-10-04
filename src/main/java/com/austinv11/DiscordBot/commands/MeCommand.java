@@ -36,6 +36,11 @@ public class MeCommand implements ICommand {
 	}
 	
 	@Override
+	public int getDefaultPermissionLevel() {
+		return ICommand.DEFAULT;
+	}
+	
+	@Override
 	public Optional<String> executeCommand(String parameters, User executor, Channel channel, Message commandMessage) throws CommandSyntaxException {
 		return Optional.of("*"+executor.getName()+" "+parameters+"*");
 	}

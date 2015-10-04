@@ -40,6 +40,11 @@ public class NameCommand implements ICommand {
 	}
 	
 	@Override
+	public int getDefaultPermissionLevel() {
+		return ICommand.OWNER;
+	}
+	
+	@Override
 	public Optional<String> executeCommand(String parameters, User executor, Channel channel, Message commandMessage) throws CommandSyntaxException {
 		if (parameters == null || parameters.isEmpty())
 			throw new CommandSyntaxException("No name has been provided!");

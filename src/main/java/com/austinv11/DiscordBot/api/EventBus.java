@@ -1,24 +1,28 @@
 package com.austinv11.DiscordBot.api;
 
+import com.austinv11.DiscordBot.DiscordBot;
 import com.austinv11.DiscordBot.api.commands.ICommand;
 import com.austinv11.DiscordBot.api.events.DiscordEvent;
 import com.austinv11.DiscordBot.api.events.Subscribe;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 /**
- * The discord event bus, post events and subscribe to events here
+ * The discord event bus, post events and subscribe to events as well as register commands here
  */
 public class EventBus {
 	
 	private static HashMap<Class, List<Method>> staticTargets = new HashMap<>();
 	private static HashMap<Class, List<Object[]>> dynamicTargets = new HashMap<>();
 	private static List<ICommand> commands = new ArrayList<>();
+	private static List<String> commandPermsCached = new ArrayList<>();
 	
 	/**
 	 * Posts an event an propagates it to all subscribed methods
@@ -98,6 +102,26 @@ public class EventBus {
 	 * @param command The command to register
 	 */
 	public static void registerCommand(ICommand command) {
+		if (commandPermsCached.isEmpty()) {
+			try {
+				ResultSet set = DiscordBot.db.openSelect("COMMANDS");
+				while (set.next()) {
+					commandPermsCached.add(set.getString("COMMAND"));
+				}
+				DiscordBot.db.closeSelect();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		if (!commandPermsCached.contains(command.getCommand())) {
+			try {
+				DiscordBot.db.insert("COMMANDS", new String[]{"COMMAND", "PERMISSION_LEVEL"}, new String[]{"'"+command.getCommand()+"'",
+						String.valueOf(command.getDefaultPermissionLevel())});
+				commandPermsCached.add(command.getCommand());
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
 		commands.add(command);
 	}
 	

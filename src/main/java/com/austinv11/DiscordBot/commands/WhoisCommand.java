@@ -38,6 +38,11 @@ public class WhoisCommand implements ICommand {
 	}
 	
 	@Override
+	public int getDefaultPermissionLevel() {
+		return ICommand.DEFAULT;
+	}
+	
+	@Override
 	public Optional<String> executeCommand(String parameters, User executor, Channel channel, Message commandMessage) throws CommandSyntaxException {
 		String result = "No results found for your query!";
 		if (parameters != null && !parameters.isEmpty()) {

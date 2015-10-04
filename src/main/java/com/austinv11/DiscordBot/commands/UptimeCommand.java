@@ -39,6 +39,11 @@ public class UptimeCommand implements ICommand {
 	}
 	
 	@Override
+	public int getDefaultPermissionLevel() {
+		return ICommand.DEFAULT;
+	}
+	
+	@Override
 	public Optional<String> executeCommand(String parameters, User executor, Channel channel, Message commandMessage) throws CommandSyntaxException {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTimeInMillis(DiscordBot.startTime);

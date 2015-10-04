@@ -97,3 +97,4 @@ Temporary Items
 # Misc
 credentials.txt
 credentials-backup.txt
+*.db

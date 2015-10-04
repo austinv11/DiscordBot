@@ -43,6 +43,11 @@ public class EvaluateCommand implements ICommand {
 	}
 	
 	@Override
+	public int getDefaultPermissionLevel() {
+		return ICommand.ADMINISTRATOR;
+	}
+	
+	@Override
 	public Optional<String> executeCommand(String parameters, User executor, Channel channel, Message commandMessage) throws CommandSyntaxException {
 		String result = "";
 		if (parameters == null || parameters.isEmpty()) {

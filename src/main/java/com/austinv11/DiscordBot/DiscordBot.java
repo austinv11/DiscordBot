@@ -9,6 +9,7 @@ import com.austinv11.DiscordBot.api.events.StartTypingEvent;
 import com.austinv11.DiscordBot.commands.*;
 import com.austinv11.DiscordBot.handler.BaseHandler;
 import com.austinv11.DiscordBot.reference.Config;
+import com.austinv11.DiscordBot.reference.Database;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.java_websocket.handshake.ServerHandshake;
 import org.json.simple.parser.ParseException;
@@ -19,6 +20,8 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import java.io.*;
 import java.net.URISyntaxException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +31,9 @@ public class DiscordBot extends DiscordClient {
 	public static long startTime;
 	public static DiscordBot instance;
 	public static ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
+	public static String ownerId;
+	public static Database db;
+	public static final String databaseFile = "permissions.db";
 	private static String[] credentials;
 	private static HashMap<String, HashMap<String, Message>> messageCache = new HashMap<>(); //TODO: Optimize
 	private static HashMap<String, Long> timeSinceLastMessage = new HashMap<>();
@@ -105,21 +111,25 @@ public class DiscordBot extends DiscordClient {
 				try {
 					for (ICommand command : EventBus.getAllCommands()) {
 						if (doesCommandMatch(command, message.getContent())) {
-							try {
-								String params = message.getContent().contains(" ") ? message.getContent().replaceFirst(
-										message.getContent().split(" ")[0]+" ", "") : "";
-								Optional<String> result = command.executeCommand(params, message.getAuthor(),
-										getChannelByID(message.getChannelID()), message);
-								if (result != null && result.isPresent()) {
-									sendMessage(result.get(), message.getChannelID());
+							if (getUserPermissionLevel(message.getAuthor()) >= command.getPermissionLevel()) {
+								try {
+									String params = message.getContent().contains(" ") ? message.getContent().replaceFirst(
+											message.getContent().split(" ")[0]+" ", "") : "";
+									Optional<String> result = command.executeCommand(params, message.getAuthor(),
+											getChannelByID(message.getChannelID()), message);
+									if (result != null && result.isPresent()) {
+										sendMessage(result.get(), message.getChannelID());
+									}
+									if (command.removesCommandMessage()) {
+										deleteMessage(message.getMessageID(), message.getChannelID());
+									}
+								} catch (CommandSyntaxException e) {
+									sendMessage("Error: "+e.errorMessage+"\nNeed help? Read the help page"+
+													" for this command by doing '"+Config.commandDiscriminator+"help "+command.getCommand()+"'",
+											message.getChannelID());
 								}
-								if (command.removesCommandMessage()) {
-									deleteMessage(message.getMessageID(), message.getChannelID());
-								}
-							} catch (CommandSyntaxException e) {
-								sendMessage("Error: "+e.errorMessage+"\nNeed help? Read the help page" +
-										" for this command by doing '"+Config.commandDiscriminator+"help "+command.getCommand()+"'",
-										message.getChannelID());
+							} else {
+								sendMessage("Error: You don't have permission to use this command!", message.getChannelID());
 							}
 							return;
 						}
@@ -190,6 +200,38 @@ public class DiscordBot extends DiscordClient {
 	public static void main(String[] args) {
 		try {
 			startTime = System.currentTimeMillis();
+			credentials = getCredentials();
+			instance = new DiscordBot(credentials[0], credentials[1]);
+			boolean needsTable = !new File(Config.databaseFile).exists();
+			db = new Database(Config.databaseFile);
+			db.connect();
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				@Override
+				public void run() {
+					synchronized (this) {
+						try {
+							if (db.isConnected())
+								db.disconnect();
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			});
+			if (needsTable) {
+				db.createTable("COMMANDS", new Database.Key("COMMAND", "TEXT", "PRIMARY KEY NOT NULL"), new Database.Key("PERMISSION_LEVEL", "INT", "NOT NULL"));
+				db.createTable("USERS", new Database.Key("ID", "TEXT", "PRIMARY KEY NOT NULL"), new Database.Key("PERMISSION_LEVEL", "INT", "NOT NULL"));
+				db.createTable("PERMISSION_GROUPS", new Database.Key("GROUP", "TEXT", "PRIMARY KEY NOT NULL"), new Database.Key("PERMISSION_LEVEL", "INT", "NOT NULL"));
+				db.createTable("BANNED_LIST", new Database.Key("ID", "TEXT", "PRIMARY KEY NOT NULL"));
+				
+				db.insert("PERMISSION_GROUPS", new String[]{"GROUP", "PERMISSION_LEVEL"}, new String[]{"'Owner'", String.valueOf(ICommand.OWNER)});
+				db.insert("PERMISSION_GROUPS", new String[]{"GROUP", "PERMISSION_LEVEL"}, new String[]{"'Anyone'", String.valueOf(ICommand.ANYONE)});
+				db.insert("PERMISSION_GROUPS", new String[]{"GROUP", "PERMISSION_LEVEL"}, new String[]{"'Default'", String.valueOf(ICommand.DEFAULT)});
+				db.insert("PERMISSION_GROUPS", new String[]{"GROUP", "PERMISSION_LEVEL"}, new String[]{"'Administrator'", String.valueOf(ICommand.ADMINISTRATOR)});
+				if (!credentials[2].equals("null")) {
+					db.insert("USERS", new String[]{"ID", "PERMISSION_LEVEL"}, new String[]{"'"+credentials[2]+"'", String.valueOf(ICommand.OWNER)});
+				}
+			}
 			EventBus.registerHandler(BaseHandler.class);
 			EventBus.registerCommand(new HelpCommand());
 			EventBus.registerCommand(new EvaluateCommand());
@@ -198,8 +240,7 @@ public class DiscordBot extends DiscordClient {
 			EventBus.registerCommand(new MeCommand());
 			EventBus.registerCommand(new RestartCommand());
 			EventBus.registerCommand(new WhoisCommand());
-			credentials = getCredentials();
-			instance = new DiscordBot(credentials[0], credentials[1]);
+			ownerId = credentials[2];
 			for (ScriptEngineFactory factory : scriptEngineManager.getEngineFactories()) {
 				System.out.println("Loaded script engine '"+factory.getEngineName()+"' v"+factory.getEngineVersion()+
 						" for language: "+factory.getLanguageName()+" v"+factory.getLanguageVersion());
@@ -214,10 +255,10 @@ public class DiscordBot extends DiscordClient {
 							System.out.println("Logged in as "+user.getName()+" with user id "+user.getID()+", this user is "+user.getPresence());
 							System.out.println("This user's avatar ("+user.getAvatar()+") is located at the url "+user.getAvatarURL());
 							try {
-								if (!credentials[2].equals("null")) {
-									if (credentials[2].contains("https://discord.gg/")
+								if (!credentials[3].equals("null")) {
+									if (credentials[3].contains("https://discord.gg/")
 											|| credentials[2].contains("http://discord.gg/")) {
-										String invite = credentials[2].split(".gg/")[1].split(" ")[0];
+										String invite = credentials[3].split(".gg/")[1].split(" ")[0];
 										System.out.println("Received invite code "+invite);
 										Invite invite1 = instance.acceptInvite(invite);
 										if (null != invite1) {
@@ -226,7 +267,7 @@ public class DiscordBot extends DiscordClient {
 										}
 										System.out.println("Accepted initial invitation");
 									} else {
-										System.out.println("Invite url "+credentials[2]+" is invalid!");
+										System.out.println("Invite url "+credentials[3]+" is invalid!");
 									}
 								}
 							} catch (NullPointerException exception) {
@@ -261,6 +302,7 @@ public class DiscordBot extends DiscordClient {
 				writer.println("DO NOT USE YOUR PERSONAL ACCOUNT! THIS ISN'T SECURE");
 				writer.println("email=");
 				writer.println("password=");
+				writer.println("owner_id=null");
 				writer.println("server_invite=null");
 				writer.flush();
 				writer.close();
@@ -276,13 +318,14 @@ public class DiscordBot extends DiscordClient {
 		if (!file.exists()) {
 			throw new FileNotFoundException();
 		}
-		String[] credentials = new String[3];
+		String[] credentials = new String[4];
 		FileReader reader = new FileReader(file);
 		BufferedReader bufferedReader = new BufferedReader(reader);
 		bufferedReader.readLine();
 		credentials[0] = bufferedReader.readLine().replaceFirst("email=", "");
 		credentials[1] = bufferedReader.readLine().replaceFirst("password=", "");
-		credentials[2] = bufferedReader.readLine().replaceFirst("server_invite=", "");
+		credentials[2] = bufferedReader.readLine().replaceFirst("owner_id=", "");
+		credentials[3] = bufferedReader.readLine().replaceFirst("server_invite=", "");
 		bufferedReader.close();
 		return credentials;
 	}
@@ -311,6 +354,35 @@ public class DiscordBot extends DiscordClient {
 	public static void restart() {
 		System.out.println("Restarting the bot...");
 		instance.close();
+		try {
+			if (db.isConnected())
+				db.disconnect();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		main(new String[0]);
+	}
+	
+	public static int getUserPermissionLevel(User user) {
+		try {
+			ResultSet set = db.openSelect("BANNED_LIST");
+			while (set.next()) {
+				if (user.getID().equals(set.getString("ID")))
+					return ICommand.ANYONE;
+			}
+			db.closeSelect();
+			
+			set = db.openSelect("USERS");
+			while (set.next()) {
+				if (user.getID().equals(set.getString("ID")))
+					return set.getInt("PERMISSION_LEVEL");
+			}
+			set.close();
+			
+			db.insert("USERS", new String[]{"ID", "PERMISSION_LEVEL"}, new String[]{"'"+user.getID()+"'", String.valueOf(ICommand.DEFAULT)});
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return ICommand.DEFAULT;
 	}
 }
