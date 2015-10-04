@@ -221,13 +221,13 @@ public class DiscordBot extends DiscordClient {
 			if (needsTable) {
 				db.createTable("COMMANDS", new Database.Key("COMMAND", "TEXT", "PRIMARY KEY NOT NULL"), new Database.Key("PERMISSION_LEVEL", "INT", "NOT NULL"));
 				db.createTable("USERS", new Database.Key("ID", "TEXT", "PRIMARY KEY NOT NULL"), new Database.Key("PERMISSION_LEVEL", "INT", "NOT NULL"));
-				db.createTable("PERMISSION_GROUPS", new Database.Key("GROUP", "TEXT", "PRIMARY KEY NOT NULL"), new Database.Key("PERMISSION_LEVEL", "INT", "NOT NULL"));
+				db.createTable("PERMISSION_RANKS", new Database.Key("RANK", "TEXT", "PRIMARY KEY NOT NULL"), new Database.Key("PERMISSION_LEVEL", "INT", "NOT NULL"));
 				db.createTable("BANNED_LIST", new Database.Key("ID", "TEXT", "PRIMARY KEY NOT NULL"));
 				
-				db.insert("PERMISSION_GROUPS", new String[]{"GROUP", "PERMISSION_LEVEL"}, new String[]{"'Owner'", String.valueOf(ICommand.OWNER)});
-				db.insert("PERMISSION_GROUPS", new String[]{"GROUP", "PERMISSION_LEVEL"}, new String[]{"'Anyone'", String.valueOf(ICommand.ANYONE)});
-				db.insert("PERMISSION_GROUPS", new String[]{"GROUP", "PERMISSION_LEVEL"}, new String[]{"'Default'", String.valueOf(ICommand.DEFAULT)});
-				db.insert("PERMISSION_GROUPS", new String[]{"GROUP", "PERMISSION_LEVEL"}, new String[]{"'Administrator'", String.valueOf(ICommand.ADMINISTRATOR)});
+				db.insert("PERMISSION_RANKS", new String[]{"RANK", "PERMISSION_LEVEL"}, new String[]{"'Owner'", String.valueOf(ICommand.OWNER)});
+				db.insert("PERMISSION_RANKS", new String[]{"RANK", "PERMISSION_LEVEL"}, new String[]{"'Anyone'", String.valueOf(ICommand.ANYONE)});
+				db.insert("PERMISSION_RANKS", new String[]{"RANK", "PERMISSION_LEVEL"}, new String[]{"'Default'", String.valueOf(ICommand.DEFAULT)});
+				db.insert("PERMISSION_RANKS", new String[]{"RANK", "PERMISSION_LEVEL"}, new String[]{"'Administrator'", String.valueOf(ICommand.ADMINISTRATOR)});
 				if (!credentials[2].equals("null")) {
 					db.insert("USERS", new String[]{"ID", "PERMISSION_LEVEL"}, new String[]{"'"+credentials[2]+"'", String.valueOf(ICommand.OWNER)});
 				}
