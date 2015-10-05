@@ -105,6 +105,7 @@ public class DiscordBot extends DiscordClient {
 			}
 		}
 		messageCounter.put(message.getAuthor().getID(), messageCount);
+		
 		if (!message.getAuthor().getID().equals(getOurUser().getID())) {
 			if (message.getContent().startsWith(String.valueOf(Config.commandDiscriminator))) {
 				try {
@@ -208,6 +209,7 @@ public class DiscordBot extends DiscordClient {
 				@Override
 				public void run() {
 					synchronized (this) {
+						instance.close();
 						try {
 							if (db.isConnected())
 								db.disconnect();
@@ -221,7 +223,6 @@ public class DiscordBot extends DiscordClient {
 				db.createTable("COMMANDS", new Database.Key("COMMAND", "TEXT", "PRIMARY KEY NOT NULL"), new Database.Key("PERMISSION_LEVEL", "INT", "NOT NULL"));
 				db.createTable("USERS", new Database.Key("ID", "TEXT", "PRIMARY KEY NOT NULL"), new Database.Key("PERMISSION_LEVEL", "INT", "NOT NULL"));
 				db.createTable("PERMISSION_RANKS", new Database.Key("RANK", "TEXT", "PRIMARY KEY NOT NULL"), new Database.Key("PERMISSION_LEVEL", "INT", "NOT NULL"));
-				db.createTable("BANNED_LIST", new Database.Key("ID", "TEXT", "PRIMARY KEY NOT NULL"));
 				
 				db.insert("PERMISSION_RANKS", new String[]{"RANK", "PERMISSION_LEVEL"}, new String[]{"'Owner'", String.valueOf(ICommand.OWNER)});
 				db.insert("PERMISSION_RANKS", new String[]{"RANK", "PERMISSION_LEVEL"}, new String[]{"'Anyone'", String.valueOf(ICommand.ANYONE)});
@@ -239,6 +240,7 @@ public class DiscordBot extends DiscordClient {
 			EventBus.registerCommand(new MeCommand());
 			EventBus.registerCommand(new RestartCommand());
 			EventBus.registerCommand(new WhoisCommand());
+			EventBus.registerCommand(new PermissionsCommand());
 			ownerId = credentials[2];
 			for (ScriptEngineFactory factory : scriptEngineManager.getEngineFactories()) {
 				System.out.println("Loaded script engine '"+factory.getEngineName()+"' v"+factory.getEngineVersion()+
@@ -364,14 +366,7 @@ public class DiscordBot extends DiscordClient {
 	
 	public static int getUserPermissionLevel(User user) {
 		try {
-			ResultSet set = db.openSelect("BANNED_LIST");
-			while (set.next()) {
-				if (user.getID().equals(set.getString("ID")))
-					return ICommand.ANYONE;
-			}
-			db.closeSelect();
-			
-			set = db.openSelect("USERS");
+			ResultSet set = db.openSelect("USERS");
 			while (set.next()) {
 				if (user.getID().equals(set.getString("ID")))
 					return set.getInt("PERMISSION_LEVEL");
@@ -382,6 +377,40 @@ public class DiscordBot extends DiscordClient {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return ICommand.DEFAULT;
+	}
+	
+	public static String getRankForLevel(int level) {
+		try {
+			ResultSet set = db.openSelect("PERMISSION_RANKS");
+			while (set.next()) {
+				if (set.getInt("PERMISSION_LEVEL") == level) {
+					return set.getString("RANK");
+				}
+			}
+			db.closeSelect();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return String.valueOf(level);
+	}
+	
+	public static int getLevelForRank(String rank) {
+		try {
+			ResultSet set = db.openSelect("PERMISSION_RANKS");
+			while (set.next()) {
+				if (set.getString("RANK").equals(rank)) {
+					return set.getInt("PERMISSION_LEVEL");
+				}
+			}
+			db.closeSelect();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			int val = Integer.valueOf(rank);
+			return val;
+		} catch (NumberFormatException e) {}
 		return ICommand.DEFAULT;
 	}
 }

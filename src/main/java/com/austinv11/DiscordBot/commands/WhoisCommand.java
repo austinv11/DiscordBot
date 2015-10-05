@@ -90,7 +90,7 @@ public class WhoisCommand implements ICommand {
 				}
 			} else if (command.equals("user")) {
 				if (args.isEmpty()) {
-					result = "User "+executor.getName()+" has the id "+executor.getID()+" with an avatar located at "+executor.getAvatarURL();
+					result = "User "+executor.getName()+" has the id "+executor.getID()+" and has a permission level of "+DiscordBot.getUserPermissionLevel(executor)+" with an avatar located at "+executor.getAvatarURL();
 				} else {
 					outside: for (Guild guild : DiscordBot.instance.getGuildList())
 						for (User user : guild.getUsers()) {

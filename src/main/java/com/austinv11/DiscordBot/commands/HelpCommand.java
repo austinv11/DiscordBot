@@ -62,7 +62,7 @@ public class HelpCommand implements ICommand {
 			for (ICommand command : commands) {
 				if (DiscordBot.doesCommandMatch(command, Config.commandDiscriminator+parameters)) {
 					result += "Help page for command '"+command.getCommand()+"':\n";
-					result += "Permission level: "+command.getPermissionLevel()+"\n";
+					result += "Permission level: "+DiscordBot.getRankForLevel(command.getPermissionLevel())+"\n";
 					result += command.getHelpMessage()+"\n";
 					result += "Aliases: ";
 					for (String alias : command.getAliases())

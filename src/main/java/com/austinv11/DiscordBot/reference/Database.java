@@ -79,7 +79,7 @@ public class Database {
 		disconnect();
 	}
 	
-	public void uodate(String tableName, String primaryKey, String primaryKeyValue, HashMap<String, String> keysToUpdate) throws SQLException {
+	public void update(String tableName, String primaryKey, String primaryKeyValue, HashMap<String, String> keysToUpdate) throws SQLException {
 		if (!isConnected)
 			connect();
 		Statement statement = connection.createStatement();

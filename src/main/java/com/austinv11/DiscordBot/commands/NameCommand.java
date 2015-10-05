@@ -41,7 +41,7 @@ public class NameCommand implements ICommand {
 	
 	@Override
 	public int getDefaultPermissionLevel() {
-		return ICommand.OWNER;
+		return ICommand.ADMINISTRATOR;
 	}
 	
 	@Override
@@ -49,8 +49,11 @@ public class NameCommand implements ICommand {
 		if (parameters == null || parameters.isEmpty())
 			throw new CommandSyntaxException("No name has been provided!");
 		try {
-			DiscordBot.instance.changeAccountInfo(StringEscapeUtils.escapeJson(parameters), "", "");
-			return Optional.of("The bot username has been changed to "+parameters);
+			boolean truncated = parameters.length() > 32;
+			DiscordBot.instance.changeAccountInfo(StringEscapeUtils.escapeJson(parameters.substring(0, truncated ?
+					32 : parameters.length())), "", "");
+			return Optional.of("The bot username has been changed to "+parameters.substring(0, truncated ?
+					32 : parameters.length())+(truncated ? " (truncated)" : ""));
 		} catch (UnsupportedEncodingException | ParseException e) {
 			e.printStackTrace();
 		}
