@@ -44,7 +44,7 @@ public class PermissionsCommand implements ICommand {
 	
 	@Override
 	public int getDefaultPermissionLevel() {
-		return ICommand.ADMINISTRATOR;
+		return ICommand.DEFAULT;
 	}
 	
 	@Override
