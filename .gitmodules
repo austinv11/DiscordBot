@@ -1,3 +1,6 @@
 [submodule "Discord4J"]
 	path = Discord4J
 	url = https://github.com/nerd/Discord4J
+[submodule "nanohttpd"]
+	path = nanohttpd
+	url = https://github.com/NanoHttpd/nanohttpd

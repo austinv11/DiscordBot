@@ -10,6 +10,7 @@ import com.austinv11.DiscordBot.commands.*;
 import com.austinv11.DiscordBot.handler.BaseHandler;
 import com.austinv11.DiscordBot.reference.Config;
 import com.austinv11.DiscordBot.reference.Database;
+import com.austinv11.DiscordBot.web.FrontEnd;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.java_websocket.handshake.ServerHandshake;
 import org.json.simple.parser.ParseException;
@@ -25,6 +26,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class DiscordBot extends DiscordClient {
 	
@@ -33,6 +35,7 @@ public class DiscordBot extends DiscordClient {
 	public static ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
 	public static String ownerId;
 	public static Database db;
+	public static FrontEnd server;
 	private static String[] credentials;
 	private static HashMap<String, HashMap<String, Message>> messageCache = new HashMap<>(); //TODO: Optimize
 	private static HashMap<String, Long> timeSinceLastMessage = new HashMap<>();
@@ -72,6 +75,8 @@ public class DiscordBot extends DiscordClient {
 	public void onMessageReceive(Message message) {
 		super.onMessageReceive(message);
 		System.out.println("["+message.getTimestamp().toString()+"]"+message.getAuthor().getName()+"("+
+				getChannelByID(message.getChannelID()).getName()+")"+": "+message.getContent());
+		FrontEnd.console.add("["+message.getTimestamp().toString()+"]"+message.getAuthor().getName()+"("+
 				getChannelByID(message.getChannelID()).getName()+")"+": "+message.getContent());
 		long currentTime = System.currentTimeMillis();
 		if (cooldown.containsKey(message.getAuthor().getID())) {
@@ -202,6 +207,9 @@ public class DiscordBot extends DiscordClient {
 		try {
 			startTime = System.currentTimeMillis();
 			credentials = getCredentials();
+			if (Config.runServerFrontEnd) {
+				(server = new FrontEnd(credentials[3])).start();
+			}
 			instance = new DiscordBot(credentials[0], credentials[1]);
 			boolean needsTable = !new File(Config.databaseFile).exists();
 			db = new Database(Config.databaseFile);
@@ -210,6 +218,8 @@ public class DiscordBot extends DiscordClient {
 				public void run() {
 					synchronized (this) {
 						instance.close();
+						if (server != null)
+							server.stop();
 						try {
 							if (db.isConnected())
 								db.disconnect();
@@ -241,6 +251,7 @@ public class DiscordBot extends DiscordClient {
 			EventBus.registerCommand(new RestartCommand());
 			EventBus.registerCommand(new WhoisCommand());
 			EventBus.registerCommand(new PermissionsCommand());
+			EventBus.registerCommand(new PurgeCommand());
 			ownerId = credentials[2];
 			for (ScriptEngineFactory factory : scriptEngineManager.getEngineFactories()) {
 				System.out.println("Loaded script engine '"+factory.getEngineName()+"' v"+factory.getEngineVersion()+
@@ -256,10 +267,10 @@ public class DiscordBot extends DiscordClient {
 							System.out.println("Logged in as "+user.getName()+" with user id "+user.getID()+", this user is "+user.getPresence());
 							System.out.println("This user's avatar ("+user.getAvatar()+") is located at the url "+user.getAvatarURL());
 							try {
-								if (!credentials[3].equals("null")) {
-									if (credentials[3].contains("https://discord.gg/")
+								if (!credentials[4].equals("null")) {
+									if (credentials[4].contains("https://discord.gg/")
 											|| credentials[2].contains("http://discord.gg/")) {
-										String invite = credentials[3].split(".gg/")[1].split(" ")[0];
+										String invite = credentials[4].split(".gg/")[1].split(" ")[0];
 										System.out.println("Received invite code "+invite);
 										Invite invite1 = instance.acceptInvite(invite);
 										if (null != invite1) {
@@ -268,7 +279,7 @@ public class DiscordBot extends DiscordClient {
 										}
 										System.out.println("Accepted initial invitation");
 									} else {
-										System.out.println("Invite url "+credentials[3]+" is invalid!");
+										System.out.println("Invite url "+credentials[4]+" is invalid!");
 									}
 								}
 							} catch (NullPointerException exception) {
@@ -304,6 +315,7 @@ public class DiscordBot extends DiscordClient {
 				writer.println("email=");
 				writer.println("password=");
 				writer.println("owner_id=null");
+				writer.println("secret_key="+UUID.randomUUID());
 				writer.println("server_invite=null");
 				writer.flush();
 				writer.close();
@@ -319,14 +331,15 @@ public class DiscordBot extends DiscordClient {
 		if (!file.exists()) {
 			throw new FileNotFoundException();
 		}
-		String[] credentials = new String[4];
+		String[] credentials = new String[5];
 		FileReader reader = new FileReader(file);
 		BufferedReader bufferedReader = new BufferedReader(reader);
 		bufferedReader.readLine();
 		credentials[0] = bufferedReader.readLine().replaceFirst("email=", "");
 		credentials[1] = bufferedReader.readLine().replaceFirst("password=", "");
 		credentials[2] = bufferedReader.readLine().replaceFirst("owner_id=", "");
-		credentials[3] = bufferedReader.readLine().replaceFirst("server_invite=", "");
+		credentials[3] = bufferedReader.readLine().replaceFirst("secret_key=", "");
+		credentials[4] = bufferedReader.readLine().replaceFirst("server_invite=", "");
 		bufferedReader.close();
 		return credentials;
 	}
@@ -355,6 +368,8 @@ public class DiscordBot extends DiscordClient {
 	public static void restart() {
 		System.out.println("Restarting the bot...");
 		instance.close();
+		if (server != null)
+			server.stop();
 		try {
 			if (db.isConnected())
 				db.disconnect();
