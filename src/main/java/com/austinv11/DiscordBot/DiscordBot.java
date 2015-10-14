@@ -1,206 +1,125 @@
 package com.austinv11.DiscordBot;
 
-import com.austinv11.DiscordBot.api.EventBus;
-import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
+import com.austinv11.DiscordBot.api.CommandRegistry;
 import com.austinv11.DiscordBot.api.commands.ICommand;
-import com.austinv11.DiscordBot.api.events.MessageEvent;
-import com.austinv11.DiscordBot.api.events.PresenceChangeEvent;
-import com.austinv11.DiscordBot.api.events.StartTypingEvent;
 import com.austinv11.DiscordBot.commands.*;
 import com.austinv11.DiscordBot.handler.BaseHandler;
 import com.austinv11.DiscordBot.reference.Config;
 import com.austinv11.DiscordBot.reference.Database;
 import com.austinv11.DiscordBot.web.FrontEnd;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.java_websocket.handshake.ServerHandshake;
 import org.json.simple.parser.ParseException;
 import sx.blah.discord.DiscordClient;
-import sx.blah.discord.obj.*;
+import sx.blah.discord.handle.IListener;
+import sx.blah.discord.handle.impl.events.*;
+import sx.blah.discord.handle.obj.*;
 
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import java.io.*;
-import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-public class DiscordBot extends DiscordClient {
+public class DiscordBot {
 	
 	public static long startTime;
-	public static DiscordBot instance;
+	public static DiscordClient instance = DiscordClient.get();
 	public static ScriptEngineManager scriptEngineManager = new ScriptEngineManager();
 	public static String ownerId;
 	public static Database db;
 	public static FrontEnd server;
 	private static String[] credentials;
-	private static HashMap<String, HashMap<String, Message>> messageCache = new HashMap<>(); //TODO: Optimize
-	private static HashMap<String, Long> timeSinceLastMessage = new HashMap<>();
-	private static HashMap<String, Integer> messageCounter = new HashMap<>();
-	private static HashMap<String, Long> cooldown = new HashMap<>();
+	public static HashMap<String, HashMap<String, Message>> messageCache = new HashMap<>(); //TODO: Optimize
 	
-	public DiscordBot(String email, String password) throws URISyntaxException, IOException, ParseException {
-		super(email, password);
+	//Makes sure to escape all special characters
+	public static Message sendMessage(String content, String channelID, String... mentions) throws IOException, ParseException {
+		return instance.sendMessage(StringEscapeUtils.escapeJson(content), channelID, mentions);
 	}
 	
-	@Override
-	public void connect() {
-		super.connect();
-	}
-	
-	@Override
-	public void onOpen(ServerHandshake serverHandshake) {
-		super.onOpen(serverHandshake);
-	}
-	
-	@Override
-	public void onMessage(String message) {
-		super.onMessage(message);
-	}
-	
-	@Override
-	public void onClose(int i, String s, boolean b) {
-		super.onClose(i, s, b);
-	}
-	
-	@Override
-	public void onError(Exception e) {
-		super.onError(e);
-	}
-	
-	@Override
-	public void onMessageReceive(Message message) {
-		super.onMessageReceive(message);
-		System.out.println("["+message.getTimestamp().toString()+"]"+message.getAuthor().getName()+"("+
-				getChannelByID(message.getChannelID()).getName()+")"+": "+message.getContent());
-		FrontEnd.console.add("["+message.getTimestamp().toString()+"]"+message.getAuthor().getName()+"("+
-				getChannelByID(message.getChannelID()).getName()+")"+": "+message.getContent());
-		long currentTime = System.currentTimeMillis();
-		if (cooldown.containsKey(message.getAuthor().getID())) {
-			if (currentTime - cooldown.get(message.getAuthor().getID()) >= (long) (Config.cooldownTime*1000)) {
-				cooldown.remove(message.getAuthor().getID());
-			} else {
-				try {
-					deleteMessage(message.getMessageID(), message.getChannelID());
-				} catch (IOException e) {
-					e.printStackTrace();
+	public static void ready() {
+		User user = instance.getOurUser();
+		System.out.println("Logged in as "+user.getName()+" with user id "+user.getID()+", this user is "+user.getPresence());
+		System.out.println("This user's avatar ("+user.getAvatar()+") is located at the url "+user.getAvatarURL());
+		try {
+			if (!credentials[4].equals("null")) {
+				if (credentials[4].contains("https://discord.gg/")
+						|| credentials[2].contains("http://discord.gg/")) {
+					String invite = credentials[4].split(".gg/")[1].split(" ")[0];
+					System.out.println("Received invite code "+invite);
+					Invite invite1 = new Invite(invite);
+					Invite.InviteResponse response = invite1.accept();
+					sendMessage(String.format("Hello, %s! I am a bot and I was invited to the %s channel",
+							response.getGuildName(), response.getChannelName()), response.getChannelID());
+					System.out.println("Accepted initial invitation");
+				} else {
+					System.out.println("Invite url "+credentials[4]+" is invalid!");
 				}
-				return;
 			}
+		} catch (NullPointerException exception) {
+			//TODO: remove, "inviter" in the invite object is always null for some reason
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		long lastMessageTime = timeSinceLastMessage.containsKey(message.getAuthor().getID()) ? timeSinceLastMessage.get(message.getAuthor().getID()) : 0L;
-		int messageCount = messageCounter.containsKey(message.getAuthor().getID()) ? messageCounter.get(message.getAuthor().getID()) : 0;
-		messageCount++;
-		timeSinceLastMessage.put(message.getAuthor().getID(), currentTime);
-		if (currentTime-lastMessageTime < 1000) {
-			if (messageCount > Config.maxUserMessagesPerSecond+1) {
-				messageCounter.put(message.getAuthor().getID(), 0);
-				cooldown.put(message.getAuthor().getID(), currentTime);
-				try {
-					sendMessage("User @"+message.getAuthor().getName()+" has exceeded the maximum of "+Config.maxUserMessagesPerSecond+
-							" messages per second, he has been muted for "+Config.cooldownTime+" seconds", message.getChannelID(), 
-							message.getAuthor().getID());
-				} catch (IOException | ParseException e) {
-					e.printStackTrace();
+		List<Guild> guilds = instance.getGuildList();
+		System.out.println("Guilds connected to:");
+		for (Guild guild : guilds) {
+			System.out.println("*'"+guild.getName()+"' with id "+guild.getID()+" with channels:");
+			for (Channel channel : guild.getChannels()) {
+				if (!messageCache.containsKey(channel.getChannelID())) {
+					messageCache.put(channel.getChannelID(), formMessageCache(channel.getMessages()));
 				}
-				return;
-			}
-		}
-		messageCounter.put(message.getAuthor().getID(), messageCount);
-		
-		if (!message.getAuthor().getID().equals(getOurUser().getID())) {
-			if (message.getContent().startsWith(String.valueOf(Config.commandDiscriminator))) {
-				try {
-					for (ICommand command : EventBus.getAllCommands()) {
-						if (doesCommandMatch(command, message.getContent())) {
-							int commandLevel = command.getPermissionLevel();
-							if (getUserPermissionLevel(message.getAuthor()) >= commandLevel) {
-								try {
-									String params = message.getContent().contains(" ") ? message.getContent().replaceFirst(
-											message.getContent().split(" ")[0]+" ", "") : "";
-									Optional<String> result = command.executeCommand(params, message.getAuthor(),
-											getChannelByID(message.getChannelID()), message);
-									if (result != null && result.isPresent()) {
-										sendMessage(result.get(), message.getChannelID());
-									}
-									if (command.removesCommandMessage()) {
-										deleteMessage(message.getMessageID(), message.getChannelID());
-									}
-								} catch (CommandSyntaxException e) {
-									sendMessage("Error: "+e.errorMessage+"\nNeed help? Read the help page"+
-													" for this command by doing '"+Config.commandDiscriminator+"help "+command.getCommand()+"'",
-											message.getChannelID());
-								}
-							} else {
-								sendMessage("Error: You don't have permission to use this command!", message.getChannelID());
-							}
-							return;
-						}
-					}
-					sendMessage("No matching commands found! Run '"+Config.commandDiscriminator+
-							"help' to list all available commands", message.getChannelID());
-				} catch (ParseException | IOException e) {
-					e.printStackTrace();
-				}
-			} else {
-				EventBus.postEvent(new MessageEvent.MessageReceivedEvent(message));
-				messageCache.get(message.getChannelID()).put(message.getMessageID(), new Message(message.getMessageID(), message.getContent(),
-						message.getAuthor(), message.getChannelID(), message.getMentionedIDs(), message.getTimestamp()));
+				System.out.println("\t*'"+channel.getName()+"' with id "+channel.getChannelID());
 			}
 		}
 	}
 	
-	@Override
-	public void onMessageSend(Message message) {
-		super.onMessageSend(message);
-		System.out.println("["+message.getTimestamp().toString()+"]"+message.getAuthor().getName()+"("+
-				getChannelByID(message.getChannelID()).getName()+")"+": "+message.getContent());
-		EventBus.postEvent(new MessageEvent.MessageSentEvent(message));
-		messageCache.get(message.getChannelID()).put(message.getMessageID(), new Message(message.getMessageID(), message.getContent(),
-				message.getAuthor(), message.getChannelID(), message.getMentionedIDs(), message.getTimestamp()));
-	}
-	
-	@Override
-	public void onMentioned(Message message) {
-		super.onMentioned(message);
-		EventBus.postEvent(new MessageEvent.MentionedEvent(message));
-	}
-	
-	@Override
-	public void onStartTyping(String userID, String channelID) {
-		super.onStartTyping(userID, channelID);
-		EventBus.postEvent(new StartTypingEvent(getUserByID(userID), getChannelByID(channelID)));
-	}
-	
-	@Override
-	public void onPresenceChange(User user, String presence) {
-		super.onPresenceChange(user, presence);
-		EventBus.postEvent(new PresenceChangeEvent(user, presence));
-	}
-	
-	@Override
-	public void onMessageUpdate(Message message) {
-		super.onMessageUpdate(message);//TODO get old message
-		Message oldMessage = messageCache.get(message.getChannelID()).get(message.getMessageID());
-		EventBus.postEvent(new MessageEvent.MessageUpdateEvent(oldMessage, message));
-		messageCache.get(message.getChannelID()).put(message.getMessageID(), new Message(message.getMessageID(), message.getContent(), 
-				message.getAuthor(), message.getChannelID(), message.getMentionedIDs(), message.getTimestamp()));
-	}
-	
-	@Override
-	public void onMessageDelete(String messageID, String channelID) { //TODO get old message
-		super.onMessageDelete(messageID, channelID);
-		Message oldMessage = messageCache.get(channelID).get(messageID);
-		EventBus.postEvent(new MessageEvent.MessageDeleteEvent(oldMessage));
-		messageCache.get(channelID).remove(messageID);
-	}
-	
-	@Override
-	public Message sendMessage(String content, String channelID, String... mentions) throws IOException, ParseException {
-		return super.sendMessage(StringEscapeUtils.escapeJson(content), channelID, mentions);
+	private static void registerListeners() { //TODO Remember to update
+		//Holy anonymous classes batman
+		instance.getDispatcher().registerListener(new IListener<GuildCreateEvent>() {
+			@Override
+			public void receive(GuildCreateEvent event) {
+				BaseHandler.receive(event);
+			}
+		});
+		instance.getDispatcher().registerListener(new IListener<InviteReceivedEvent>() {
+			@Override
+			public void receive(InviteReceivedEvent event) {
+				BaseHandler.receive(event);
+			}
+		});
+		instance.getDispatcher().registerListener(new IListener<MentionEvent>() {
+			@Override
+			public void receive(MentionEvent event) {
+				BaseHandler.receive(event);
+			}
+		});
+		instance.getDispatcher().registerListener(new IListener<MessageDeleteEvent>() {
+			@Override
+			public void receive(MessageDeleteEvent event) {
+				BaseHandler.receive(event);
+			}
+		});
+		instance.getDispatcher().registerListener(new IListener<MessageReceivedEvent>() {
+			@Override
+			public void receive(MessageReceivedEvent event) {
+				BaseHandler.receive(event);
+			}
+		});
+		instance.getDispatcher().registerListener(new IListener<MessageSendEvent>() {
+			@Override
+			public void receive(MessageSendEvent event) {
+				BaseHandler.receive(event);
+			}
+		});
+		instance.getDispatcher().registerListener(new IListener<ReadyEvent>() {
+			@Override
+			public void receive(ReadyEvent event) {
+				BaseHandler.receive(event);
+			}
+		});
 	}
 	
 	public static void main(String[] args) {
@@ -210,14 +129,14 @@ public class DiscordBot extends DiscordClient {
 			if (Config.runServerFrontEnd) {
 				(server = new FrontEnd(credentials[3])).start();
 			}
-			instance = new DiscordBot(credentials[0], credentials[1]);
+			registerListeners();
+			instance.login(credentials[0], credentials[1]);
 			boolean needsTable = !new File(Config.databaseFile).exists();
 			db = new Database(Config.databaseFile);
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				@Override
 				public void run() {
 					synchronized (this) {
-						instance.close();
 						if (server != null)
 							server.stop();
 						try {
@@ -242,68 +161,20 @@ public class DiscordBot extends DiscordClient {
 					db.insert("USERS", new String[]{"ID", "PERMISSION_LEVEL"}, new String[]{"'"+credentials[2]+"'", String.valueOf(ICommand.OWNER)});
 				}
 			}
-			EventBus.registerHandler(BaseHandler.class);
-			EventBus.registerCommand(new HelpCommand());
-			EventBus.registerCommand(new EvaluateCommand());
-			EventBus.registerCommand(new UptimeCommand());
-			EventBus.registerCommand(new NameCommand());
-			EventBus.registerCommand(new MeCommand());
-			EventBus.registerCommand(new RestartCommand());
-			EventBus.registerCommand(new WhoisCommand());
-			EventBus.registerCommand(new PermissionsCommand());
-			EventBus.registerCommand(new PurgeCommand());
+			CommandRegistry.registerCommand(new HelpCommand());
+			CommandRegistry.registerCommand(new EvaluateCommand());
+			CommandRegistry.registerCommand(new UptimeCommand());
+			CommandRegistry.registerCommand(new NameCommand());
+			CommandRegistry.registerCommand(new MeCommand());
+			CommandRegistry.registerCommand(new RestartCommand());
+			CommandRegistry.registerCommand(new WhoisCommand());
+			CommandRegistry.registerCommand(new PermissionsCommand());
+			CommandRegistry.registerCommand(new PurgeCommand());
 			ownerId = credentials[2];
 			for (ScriptEngineFactory factory : scriptEngineManager.getEngineFactories()) {
 				System.out.println("Loaded script engine '"+factory.getEngineName()+"' v"+factory.getEngineVersion()+
 						" for language: "+factory.getLanguageName()+" v"+factory.getLanguageVersion());
 			}
-			new Thread() {
-				@Override
-				public void run() {
-					try {
-						synchronized (this) {
-							this.wait(2000L); //FIXME damn race conditions
-							User user = instance.getOurUser();
-							System.out.println("Logged in as "+user.getName()+" with user id "+user.getID()+", this user is "+user.getPresence());
-							System.out.println("This user's avatar ("+user.getAvatar()+") is located at the url "+user.getAvatarURL());
-							try {
-								if (!credentials[4].equals("null")) {
-									if (credentials[4].contains("https://discord.gg/")
-											|| credentials[2].contains("http://discord.gg/")) {
-										String invite = credentials[4].split(".gg/")[1].split(" ")[0];
-										System.out.println("Received invite code "+invite);
-										Invite invite1 = instance.acceptInvite(invite);
-										if (null != invite1) {
-											instance.sendMessage(String.format("Hello, %s! I am a bot and I was invited to the %s channel by @%s.",
-													invite1.getGuildName(), invite1.getChannelName(), invite1.getInviterUsername()), invite1.getChannelID(), invite1.getInviterID());
-										}
-										System.out.println("Accepted initial invitation");
-									} else {
-										System.out.println("Invite url "+credentials[4]+" is invalid!");
-									}
-								}
-							} catch (NullPointerException exception) {
-								//TODO: remove, "inviter" in the invite object is always null for some reason
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-							List<Guild> guilds = instance.getGuildList();
-							System.out.println("Guilds connected to:");
-							for (Guild guild : guilds) {
-								System.out.println("*'"+guild.getName()+"' with id "+guild.getID()+" with channels:");
-								for (Channel channel : guild.getChannels()) {
-									if (!messageCache.containsKey(channel.getChannelID())) {
-										messageCache.put(channel.getChannelID(), formMessageCache(channel.getMessages()));
-									}
-									System.out.println("\t*'"+channel.getName()+"' with id "+channel.getChannelID());
-								}
-							}
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}.start();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("There was an error initializing the bot, rebuilding the credentials.txt");
@@ -367,7 +238,6 @@ public class DiscordBot extends DiscordClient {
 	
 	public static void restart() {
 		System.out.println("Restarting the bot...");
-		instance.close();
 		if (server != null)
 			server.stop();
 		try {

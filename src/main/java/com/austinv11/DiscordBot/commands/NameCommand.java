@@ -5,9 +5,9 @@ import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.simple.parser.ParseException;
-import sx.blah.discord.obj.Channel;
-import sx.blah.discord.obj.Message;
-import sx.blah.discord.obj.User;
+import sx.blah.discord.handle.obj.Channel;
+import sx.blah.discord.handle.obj.Message;
+import sx.blah.discord.handle.obj.User;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Optional;

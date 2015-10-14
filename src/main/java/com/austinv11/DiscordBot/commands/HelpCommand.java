@@ -1,13 +1,13 @@
 package com.austinv11.DiscordBot.commands;
 
 import com.austinv11.DiscordBot.DiscordBot;
-import com.austinv11.DiscordBot.api.EventBus;
+import com.austinv11.DiscordBot.api.CommandRegistry;
 import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
 import com.austinv11.DiscordBot.reference.Config;
-import sx.blah.discord.obj.Channel;
-import sx.blah.discord.obj.Message;
-import sx.blah.discord.obj.User;
+import sx.blah.discord.handle.obj.Channel;
+import sx.blah.discord.handle.obj.Message;
+import sx.blah.discord.handle.obj.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,7 +49,7 @@ public class HelpCommand implements ICommand {
 	public Optional<String> executeCommand(String parameters, User executor, Channel channel, Message commandMessage) throws CommandSyntaxException {
 		String result = "";
 		if (parameters == null || parameters.isEmpty()) {
-			List<ICommand> commands = EventBus.getAllCommands();
+			List<ICommand> commands = CommandRegistry.getAllCommands();
 			result += commands.size()+" commands found:\n";
 			TreeSet<String> commandNames = new TreeSet<>();
 			for (ICommand command : commands)
@@ -58,7 +58,7 @@ public class HelpCommand implements ICommand {
 				result += "*"+commandName+"\n";
 			result += "For help about a specific command run the command '"+Config.commandDiscriminator+"help [command]'";
 		} else {
-			List<ICommand> commands = EventBus.getAllCommands();
+			List<ICommand> commands = CommandRegistry.getAllCommands();
 			for (ICommand command : commands) {
 				if (DiscordBot.doesCommandMatch(command, Config.commandDiscriminator+parameters)) {
 					result += "Help page for command '"+command.getCommand()+"':\n";

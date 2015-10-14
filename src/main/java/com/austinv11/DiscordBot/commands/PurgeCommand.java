@@ -4,9 +4,9 @@ import com.austinv11.DiscordBot.DiscordBot;
 import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
 import com.austinv11.DiscordBot.reference.Config;
-import sx.blah.discord.obj.Channel;
-import sx.blah.discord.obj.Message;
-import sx.blah.discord.obj.User;
+import sx.blah.discord.handle.obj.Channel;
+import sx.blah.discord.handle.obj.Message;
+import sx.blah.discord.handle.obj.User;
 
 import java.io.File;
 import java.sql.SQLException;

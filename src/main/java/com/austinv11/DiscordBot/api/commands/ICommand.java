@@ -1,9 +1,9 @@
 package com.austinv11.DiscordBot.api.commands;
 
 import com.austinv11.DiscordBot.DiscordBot;
-import sx.blah.discord.obj.Channel;
-import sx.blah.discord.obj.Message;
-import sx.blah.discord.obj.User;
+import sx.blah.discord.handle.obj.Channel;
+import sx.blah.discord.handle.obj.Message;
+import sx.blah.discord.handle.obj.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

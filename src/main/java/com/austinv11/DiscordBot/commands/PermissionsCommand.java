@@ -1,14 +1,14 @@
 package com.austinv11.DiscordBot.commands;
 
 import com.austinv11.DiscordBot.DiscordBot;
-import com.austinv11.DiscordBot.api.EventBus;
+import com.austinv11.DiscordBot.api.CommandRegistry;
 import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
 import com.austinv11.DiscordBot.reference.Config;
-import sx.blah.discord.obj.Channel;
-import sx.blah.discord.obj.Guild;
-import sx.blah.discord.obj.Message;
-import sx.blah.discord.obj.User;
+import sx.blah.discord.handle.obj.Channel;
+import sx.blah.discord.handle.obj.Guild;
+import sx.blah.discord.handle.obj.Message;
+import sx.blah.discord.handle.obj.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -118,7 +118,7 @@ public class PermissionsCommand implements ICommand {
 				}
 			} else if (command.equals("command")) {
 				ICommand commandObj = null;
-				for (ICommand command1 : EventBus.getAllCommands()) {
+				for (ICommand command1 : CommandRegistry.getAllCommands()) {
 					if (DiscordBot.doesCommandMatch(command1, Config.commandDiscriminator+thing)) {
 						commandObj = command1;
 					}

@@ -3,10 +3,10 @@ package com.austinv11.DiscordBot.commands;
 import com.austinv11.DiscordBot.DiscordBot;
 import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
-import sx.blah.discord.obj.Channel;
-import sx.blah.discord.obj.Guild;
-import sx.blah.discord.obj.Message;
-import sx.blah.discord.obj.User;
+import sx.blah.discord.handle.obj.Channel;
+import sx.blah.discord.handle.obj.Guild;
+import sx.blah.discord.handle.obj.Message;
+import sx.blah.discord.handle.obj.User;
 
 import java.util.Optional;
 
