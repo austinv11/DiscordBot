@@ -165,7 +165,6 @@ public class DiscordBot {
 			CommandRegistry.registerCommand(new EvaluateCommand());
 			CommandRegistry.registerCommand(new UptimeCommand());
 			CommandRegistry.registerCommand(new NameCommand());
-			CommandRegistry.registerCommand(new MeCommand());
 			CommandRegistry.registerCommand(new RestartCommand());
 			CommandRegistry.registerCommand(new WhoisCommand());
 			CommandRegistry.registerCommand(new PermissionsCommand());

@@ -137,10 +137,20 @@ public class BaseHandler {
 					e.printStackTrace();
 				}
 				
-			//Not a command, cache it
+			//Not a command, cache it and check for table disrespect
 			} else {
+				
 				DiscordBot.messageCache.get(message.getChannelID()).put(message.getMessageID(), new Message(message.getMessageID(), message.getContent(),
 						message.getAuthor(), message.getChannelID(), message.getMentionedIDs(), message.getTimestamp()));
+				
+				if (message.getContent().contains("(╯°□°）╯︵ ┻━┻")) {
+					try {
+						//Please respect tables
+						DiscordBot.sendMessage("┬─┬ノ(ಠ_ಠノ)\nPlease respect tables", message.getChannelID());
+					} catch (IOException | ParseException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 	}
