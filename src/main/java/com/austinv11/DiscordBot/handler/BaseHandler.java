@@ -85,7 +85,7 @@ public class BaseHandler {
 		messageCount++;
 		timeSinceLastMessage.put(message.getAuthor().getID(), currentTime);
 		if (currentTime-lastMessageTime < 1000) {
-			if (messageCount > Config.maxUserMessagesPerSecond+1) {
+			if (messageCount >= Config.maxUserMessagesPerSecond) {
 				messageCounter.put(message.getAuthor().getID(), 0);
 				cooldown.put(message.getAuthor().getID(), currentTime);
 				try {

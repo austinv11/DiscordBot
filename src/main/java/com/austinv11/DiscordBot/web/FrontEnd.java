@@ -29,14 +29,11 @@ public class FrontEnd extends NanoHTTPD {
 		} else {
 			Map<String, String> parms = session.getParms();
 			if (parms.get("key") == null) {
-				String msg = "<html><body>\n";
-				msg += "<form action = '/html/main.html?' method='get'>\n"+"  <p>Secret Key: <input type='text' name='key'></p>\n"+"</form>\n";
-				msg += "</body></html>\n";
-				return newFixedLengthResponse(msg);
+				return newFixedLengthResponse(getTextFromClasspath("html/start.html"));
 			} else if (parms.get("key").equals(secretKey)) {
 				return newFixedLengthResponse(getTextFromClasspath("html/"+session.getUri().split("/html/")[1]));
 			} else {
-				return newFixedLengthResponse("<h1>Security Exception: Access Denied!</h1>");
+				return newFixedLengthResponse(getTextFromClasspath("html/access_denied.html"));
 			}
 		}
 	}
