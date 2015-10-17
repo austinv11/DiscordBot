@@ -28,6 +28,8 @@ public class FrontEnd extends NanoHTTPD {
 			return newFixedLengthResponse(concatList(console));
 		} else if (session.getUri().contains("/js/")) {
 			return newFixedLengthResponse(getTextFromClasspath("js/"+session.getUri().split("/js/")[1]));
+		} else if (session.getUri().contains("/css/")) {
+			return newFixedLengthResponse(getTextFromClasspath("css/"+session.getUri().split("/css/")[1]));
 		} else {
 			Map<String, String> parms = session.getParms();
 			if (parms.get("key") == null) {
