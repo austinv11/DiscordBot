@@ -1,7 +1,9 @@
 package com.austinv11.DiscordBot.web;
 
 import com.austinv11.DiscordBot.reference.Config;
+import com.google.gson.Gson;
 import fi.iki.elonen.NanoHTTPD;
+import sx.blah.discord.handle.obj.Message;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,7 +15,7 @@ import java.util.Map;
 public class FrontEnd extends NanoHTTPD {
 	
 	private final String secretKey;
-	public static volatile List<String> console = new ArrayList<>();
+	public static volatile List<Message> console = new ArrayList<>();
 	
 	public FrontEnd(String secretKey) {
 		super(Config.hostName != null && !Config.hostName.equals("null") ? Config.hostName : null, Config.port);
@@ -38,11 +40,11 @@ public class FrontEnd extends NanoHTTPD {
 		}
 	}
 	
-	private String concatList(List<String> list) {
-		String string = "";
-		for (String s : list)
-			string += "<p>"+s+"</p>";
-		return string;
+	private String concatList(List<Message> list) {
+		Message[] messages = new Message[list.size()];
+		for (int i = 0; i < list.size(); i++)
+			messages[i] = list.get(i);
+		return new Gson().toJson(messages);
 	}
 	
 	private String getTextFromClasspath(String filepath) {

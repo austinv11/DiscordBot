@@ -63,8 +63,7 @@ public class BaseHandler {
 		//Logging messages
 		System.out.println("["+message.getTimestamp().toString()+"]"+message.getAuthor().getName()+"("+
 				channel.getName()+")"+": "+message.getContent());
-		FrontEnd.console.add("["+message.getTimestamp().toString()+"]"+message.getAuthor().getName()+"("+
-				channel.getName()+")"+": "+message.getContent());
+		FrontEnd.console.add(message);
 		
 		//Checking spam filters
 		long currentTime = System.currentTimeMillis();
@@ -164,8 +163,7 @@ public class BaseHandler {
 		//Logging messages
 		System.out.println("["+message.getTimestamp().toString()+"]"+message.getAuthor().getName()+"("+
 				channel.getName()+")"+": "+message.getContent());
-		FrontEnd.console.add("["+message.getTimestamp().toString()+"]"+message.getAuthor().getName()+"("+
-				channel.getName()+")"+": "+message.getContent());
+		FrontEnd.console.add(message);
 		
 		//Caching it
 		DiscordBot.messageCache.get(message.getChannelID()).put(message.getMessageID(), new Message(message.getMessageID(), message.getContent(),

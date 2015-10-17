@@ -5,10 +5,21 @@ window.setInterval("reload();", refreshTime);
 
 //Reload each element
 function reload() {
-	reloadElement("element/console");
+	reloadConsole();
 }
 
-//Reload the specified element
+function reloadConsole() {
+	var messages = "";
+	$.getJSON("element/console", null, function(data, status, xhr) {
+		if (status === "success") {
+			for (var message in data) {
+				//TODO
+			}
+		}
+	})
+}
+
+//Reload the specified element, uses vanilla js
 function reloadElement(element) {
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
