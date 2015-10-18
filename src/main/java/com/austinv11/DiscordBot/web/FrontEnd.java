@@ -1,5 +1,6 @@
 package com.austinv11.DiscordBot.web;
 
+import com.austinv11.DiscordBot.DiscordBot;
 import com.austinv11.DiscordBot.reference.Config;
 import com.google.gson.Gson;
 import fi.iki.elonen.NanoHTTPD;
@@ -26,6 +27,8 @@ public class FrontEnd extends NanoHTTPD {
 	public Response serve(IHTTPSession session) {
 		if (session.getUri().endsWith("element/console")) {
 			return newFixedLengthResponse(concatList(console));
+		} else if (session.getUri().endsWith("element/guilds")) {
+			return newFixedLengthResponse(concatList(DiscordBot.instance.getGuildList()));
 		} else if (session.getUri().contains("/js/")) {
 			return newFixedLengthResponse(getTextFromClasspath("js/"+session.getUri().split("/js/")[1]));
 		} else if (session.getUri().contains("/css/")) {
@@ -42,8 +45,8 @@ public class FrontEnd extends NanoHTTPD {
 		}
 	}
 	
-	private String concatList(List<Message> list) {
-		Message[] messages = new Message[list.size()];
+	private String concatList(List<?> list) {
+		Object[] messages = new Object[list.size()];
 		for (int i = 0; i < list.size(); i++)
 			messages[i] = list.get(i);
 		return new Gson().toJson(messages);
