@@ -66,38 +66,40 @@ public class BaseHandler {
 		FrontEnd.console.add(message);
 		
 		//Checking spam filters
-		long currentTime = System.currentTimeMillis();
-		if (cooldown.containsKey(message.getAuthor().getID())) {
-			if (currentTime - cooldown.get(message.getAuthor().getID()) >= (long) (Config.cooldownTime*1000)) {
-				cooldown.remove(message.getAuthor().getID());
-			} else {
-				try {
-					DiscordBot.instance.deleteMessage(message.getMessageID(), message.getChannelID());
-				} catch (IOException e) {
-					e.printStackTrace();
+		if (Config.enableSpamFilter) {
+			long currentTime = System.currentTimeMillis();
+			if (cooldown.containsKey(message.getAuthor().getID())) {
+				if (currentTime-cooldown.get(message.getAuthor().getID()) >= (long) (Config.cooldownTime*1000)) {
+					cooldown.remove(message.getAuthor().getID());
+				} else {
+					try {
+						DiscordBot.instance.deleteMessage(message.getMessageID(), message.getChannelID());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					return;
 				}
-				return;
 			}
-		}
-		long lastMessageTime = timeSinceLastMessage.containsKey(message.getAuthor().getID()) ? timeSinceLastMessage.get(message.getAuthor().getID()) : 0L;
-		int messageCount = messageCounter.containsKey(message.getAuthor().getID()) ? messageCounter.get(message.getAuthor().getID()) : 0;
-		messageCount++;
-		timeSinceLastMessage.put(message.getAuthor().getID(), currentTime);
-		if (currentTime-lastMessageTime < 1000) {
-			if (messageCount >= Config.maxUserMessagesPerSecond) {
-				messageCounter.put(message.getAuthor().getID(), 0);
-				cooldown.put(message.getAuthor().getID(), currentTime);
-				try {
-					DiscordBot.sendMessage("User @"+message.getAuthor().getName()+" has exceeded the maximum of "+Config.maxUserMessagesPerSecond+
-									" messages per second, he has been muted for "+Config.cooldownTime+" seconds", message.getChannelID(),
-							message.getAuthor().getID());
-				} catch (IOException | ParseException e) {
-					e.printStackTrace();
+			long lastMessageTime = timeSinceLastMessage.containsKey(message.getAuthor().getID()) ? timeSinceLastMessage.get(message.getAuthor().getID()) : 0L;
+			int messageCount = messageCounter.containsKey(message.getAuthor().getID()) ? messageCounter.get(message.getAuthor().getID()) : 0;
+			messageCount++;
+			timeSinceLastMessage.put(message.getAuthor().getID(), currentTime);
+			if (currentTime-lastMessageTime < 1000) {
+				if (messageCount >= Config.maxUserMessagesPerSecond) {
+					messageCounter.put(message.getAuthor().getID(), 0);
+					cooldown.put(message.getAuthor().getID(), currentTime);
+					try {
+						DiscordBot.sendMessage("User @"+message.getAuthor().getName()+" has exceeded the maximum of "+Config.maxUserMessagesPerSecond+
+										" messages per second, he has been muted for "+Config.cooldownTime+" seconds", message.getChannelID(),
+								message.getAuthor().getID());
+					} catch (IOException | ParseException e) {
+						e.printStackTrace();
+					}
+					return;
 				}
-				return;
 			}
+			messageCounter.put(message.getAuthor().getID(), messageCount);
 		}
-		messageCounter.put(message.getAuthor().getID(), messageCount);
 		
 		//Make sure the user isn't the bot
 		if (!message.getAuthor().getID().equals(DiscordBot.instance.getOurUser().getID())) {
@@ -138,16 +140,17 @@ public class BaseHandler {
 				
 			//Not a command, cache it and check for table disrespect
 			} else {
-				
 				DiscordBot.messageCache.get(message.getChannelID()).put(message.getMessageID(), new Message(message.getMessageID(), message.getContent(),
 						message.getAuthor(), message.getChannelID(), message.getMentionedIDs(), message.getTimestamp()));
 				
-				if (message.getContent().contains("(╯°□°）╯︵ ┻━┻")) {
-					try {
-						//Please respect tables
-						DiscordBot.sendMessage("┬─┬ノ(ಠ_ಠノ)\nPlease respect tables", message.getChannelID());
-					} catch (IOException | ParseException e) {
-						e.printStackTrace();
+				if (Config.enableRespectTables) {
+					if (message.getContent().contains("(╯°□°）╯︵ ┻━┻")) {
+						try {
+							//Please respect tables
+							DiscordBot.sendMessage("┬─┬ノ(ಠ_ಠノ)\nPlease respect tables", message.getChannelID());
+						} catch (IOException | ParseException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
