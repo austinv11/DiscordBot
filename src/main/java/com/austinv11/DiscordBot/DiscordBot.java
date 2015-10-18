@@ -169,6 +169,7 @@ public class DiscordBot {
 			CommandRegistry.registerCommand(new WhoisCommand());
 			CommandRegistry.registerCommand(new PermissionsCommand());
 			CommandRegistry.registerCommand(new PurgeCommand());
+			CommandRegistry.registerCommand(new ShrugCommand());
 			ownerId = credentials[2];
 			for (ScriptEngineFactory factory : scriptEngineManager.getEngineFactories()) {
 				System.out.println("Loaded script engine '"+factory.getEngineName()+"' v"+factory.getEngineVersion()+
