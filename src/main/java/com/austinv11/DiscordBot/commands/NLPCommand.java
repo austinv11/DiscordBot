@@ -1,8 +1,8 @@
 package com.austinv11.DiscordBot.commands;
 
+import com.austinv11.DiscordBot.DiscordBot;
 import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
-import com.austinv11.DiscordBot.reference.Config;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.Annotation;
@@ -63,7 +63,7 @@ public class NLPCommand implements ICommand {
 	
 	@Override
 	public Optional<String> executeCommand(String parameters, User executor, Channel channel, Message commandMessage) throws CommandSyntaxException {
-		String text = commandMessage.getContent().replace(Config.commandDiscriminator+getCommand()+" ", "");
+		String text = commandMessage.getContent().replace(DiscordBot.CONFIG.commandDiscriminator+getCommand()+" ", "");
 		String message = "```";
 		Annotation annotation = pipeline.process(text);
 		List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);

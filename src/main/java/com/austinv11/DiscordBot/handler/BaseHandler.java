@@ -4,7 +4,6 @@ import com.austinv11.DiscordBot.DiscordBot;
 import com.austinv11.DiscordBot.api.CommandRegistry;
 import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
-import com.austinv11.DiscordBot.reference.Config;
 import com.austinv11.DiscordBot.web.FrontEnd;
 import org.json.simple.parser.ParseException;
 import sx.blah.discord.handle.IEvent;
@@ -55,10 +54,10 @@ public class BaseHandler {
 	}
 	
 	private static void checkSpamFilter(Message message) {
-		if (Config.enableSpamFilter) {
+		if (DiscordBot.CONFIG.enableSpamFilter) {
 			long currentTime = System.currentTimeMillis();
 			if (cooldown.containsKey(message.getAuthor().getID())) {
-				if (currentTime-cooldown.get(message.getAuthor().getID()) >= (long) (Config.cooldownTime*1000)) {
+				if (currentTime-cooldown.get(message.getAuthor().getID()) >= (long) (DiscordBot.CONFIG.cooldownTime*1000)) {
 					cooldown.remove(message.getAuthor().getID());
 				} else {
 					try {
@@ -74,12 +73,12 @@ public class BaseHandler {
 			messageCount++;
 			timeSinceLastMessage.put(message.getAuthor().getID(), currentTime);
 			if (currentTime-lastMessageTime < 1000) {
-				if (messageCount >= Config.maxUserMessagesPerSecond) {
+				if (messageCount >= DiscordBot.CONFIG.maxUserMessagesPerSecond) {
 					messageCounter.put(message.getAuthor().getID(), 0);
 					cooldown.put(message.getAuthor().getID(), currentTime);
 					try {
-						DiscordBot.sendMessage("User @"+message.getAuthor().getName()+" has exceeded the maximum of "+Config.maxUserMessagesPerSecond+
-										" messages per second, he has been muted for "+Config.cooldownTime+" seconds", message.getChannelID(),
+						DiscordBot.sendMessage("User @"+message.getAuthor().getName()+" has exceeded the maximum of "+DiscordBot.CONFIG.maxUserMessagesPerSecond+
+										" messages per second, he has been muted for "+DiscordBot.CONFIG.cooldownTime+" seconds", message.getChannelID(),
 								message.getAuthor().getID());
 					} catch (IOException | ParseException e) {
 						e.printStackTrace();
@@ -92,7 +91,7 @@ public class BaseHandler {
 	}
 	
 	private static boolean checkForCommand(Channel channel, Message message) {
-		if (message.getContent().startsWith(String.valueOf(Config.commandDiscriminator))) {
+		if (message.getContent().startsWith(String.valueOf(DiscordBot.CONFIG.commandDiscriminator))) {
 			try {
 				for (ICommand command : CommandRegistry.getAllCommands()) {
 					String commandPrefix = DiscordBot.doesCommandMatch(command, message.getContent());
@@ -109,7 +108,7 @@ public class BaseHandler {
 								}
 							} catch (CommandSyntaxException e) {
 								DiscordBot.sendMessage("Error: "+e.errorMessage+"\nNeed help? Read the help page"+
-												" for this command by doing '"+Config.commandDiscriminator+"help "+command.getCommand()+"'",
+												" for this command by doing '"+DiscordBot.CONFIG.commandDiscriminator+"help "+command.getCommand()+"'",
 										message.getChannelID());
 							}
 							if (command.removesCommandMessage()) {
@@ -121,7 +120,7 @@ public class BaseHandler {
 						return true;
 					}
 				}
-				DiscordBot.sendMessage("No matching commands found! Run '"+Config.commandDiscriminator+
+				DiscordBot.sendMessage("No matching commands found! Run '"+DiscordBot.CONFIG.commandDiscriminator+
 						"help' to list all available commands", message.getChannelID());
 				return true;
 			} catch (ParseException | IOException e) {
@@ -151,7 +150,7 @@ public class BaseHandler {
 				DiscordBot.messageCache.get(message.getChannelID()).put(message.getMessageID(), new Message(message.getMessageID(), message.getContent(),
 						message.getAuthor(), message.getChannelID(), message.getMentionedIDs(), message.getTimestamp()));
 				
-				if (Config.enableRespectTables) {
+				if (DiscordBot.CONFIG.enableRespectTables) {
 					if (message.getContent().contains("(╯°□°）╯︵ ┻━┻")) {
 						try {
 							//Please respect tables

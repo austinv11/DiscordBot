@@ -51,7 +51,7 @@ public class PurgeCommand implements ICommand {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		new File("./"+Config.databaseFile).delete();
+		new File("./"+DiscordBot.CONFIG.databaseFile).delete();
 		DiscordBot.restart();
 		return Optional.empty();
 	}

@@ -119,7 +119,7 @@ public class PermissionsCommand implements ICommand {
 			} else if (command.equals("command")) {
 				ICommand commandObj = null;
 				for (ICommand command1 : CommandRegistry.getAllCommands()) {
-					if (DiscordBot.doesCommandMatch(command1, Config.commandDiscriminator+thing) != null) {
+					if (DiscordBot.doesCommandMatch(command1, DiscordBot.CONFIG.commandDiscriminator+thing) != null) {
 						commandObj = command1;
 					}
 				}

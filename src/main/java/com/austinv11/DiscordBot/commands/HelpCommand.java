@@ -4,7 +4,6 @@ import com.austinv11.DiscordBot.DiscordBot;
 import com.austinv11.DiscordBot.api.CommandRegistry;
 import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
-import com.austinv11.DiscordBot.reference.Config;
 import sx.blah.discord.handle.obj.Channel;
 import sx.blah.discord.handle.obj.Message;
 import sx.blah.discord.handle.obj.User;
@@ -56,11 +55,11 @@ public class HelpCommand implements ICommand {
 				commandNames.add(command.getCommand());
 			for (String commandName : commandNames)
 				result += "*"+commandName+"\n";
-			result += "```For help about a specific command run the command '"+Config.commandDiscriminator+"help [command]'";
+			result += "```For help about a specific command run the command '"+DiscordBot.CONFIG.commandDiscriminator+"help [command]'";
 		} else {
 			List<ICommand> commands = CommandRegistry.getAllCommands();
 			for (ICommand command : commands) {
-				if (DiscordBot.doesCommandMatch(command, Config.commandDiscriminator+parameters) != null) {
+				if (DiscordBot.doesCommandMatch(command, DiscordBot.CONFIG.commandDiscriminator+parameters) != null) {
 					result += "Help page for command '"+command.getCommand()+"':\n";
 					result += "```Permission level: "+DiscordBot.getRankForLevel(command.getPermissionLevel())+"\n";
 					result += command.getHelpMessage()+"\n";
@@ -68,12 +67,12 @@ public class HelpCommand implements ICommand {
 					for (String alias : command.getAliases())
 						result += alias+", ";
 					result = result.substring(0, result.length()-2)+"\n";
-					result += "Usage: "+Config.commandDiscriminator+command.getUsage()+"```";
+					result += "Usage: "+DiscordBot.CONFIG.commandDiscriminator+command.getUsage()+"```";
 					break;
 				}
 			}
 			if (result.isEmpty()) {
-				result += "No commands found for the query '"+parameters+"', run '"+Config.commandDiscriminator+"help' to list all available commands";
+				result += "No commands found for the query '"+parameters+"', run '"+DiscordBot.CONFIG.commandDiscriminator+"help' to list all available commands";
 			}
 		}
 		return Optional.ofNullable(result.isEmpty() ? null : result);

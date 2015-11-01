@@ -7,6 +7,8 @@ import com.austinv11.DiscordBot.handler.BaseHandler;
 import com.austinv11.DiscordBot.reference.Config;
 import com.austinv11.DiscordBot.reference.Database;
 import com.austinv11.DiscordBot.web.FrontEnd;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.simple.parser.ParseException;
 import sx.blah.discord.DiscordClient;
@@ -33,6 +35,7 @@ public class DiscordBot {
 	public static FrontEnd server;
 	private static String[] credentials;
 	public static HashMap<String, HashMap<String, Message>> messageCache = new HashMap<>(); //TODO: Optimize
+	public static Config CONFIG = new Config();
 	
 	//Makes sure to escape all special characters
 	public static Message sendMessage(String content, String channelID, String... mentions) throws IOException, ParseException {
@@ -125,14 +128,29 @@ public class DiscordBot {
 	public static void main(String[] args) {
 		try {
 			startTime = System.currentTimeMillis();
+			
+			File config = new File("./config.json");
+			Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+			if (config.exists()) {
+				FileReader reader = new FileReader(config);
+				CONFIG = gson.fromJson(reader, Config.class);
+			} else {
+				config.createNewFile();
+			}
+			String configJson = gson.toJson(CONFIG);
+			PrintStream writer = new PrintStream(config);
+			writer.println(configJson);
+			writer.flush();
+			writer.close();
+			
 			credentials = getCredentials();
-			if (Config.runServerFrontEnd) {
+			
+			if (CONFIG.runServerFrontEnd) {
 				(server = new FrontEnd(credentials[3])).start();
 			}
+			
 			registerListeners();
-			instance.login(credentials[0], credentials[1]);
-			boolean needsTable = !new File(Config.databaseFile).exists();
-			db = new Database(Config.databaseFile);
+			
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				@Override
 				public void run() {
@@ -148,6 +166,11 @@ public class DiscordBot {
 					}
 				}
 			});
+			
+			instance.login(credentials[0], credentials[1]);
+			
+			boolean needsTable = !new File(CONFIG.databaseFile).exists();
+			db = new Database(CONFIG.databaseFile);
 			if (needsTable) {
 				db.createTable("COMMANDS", new Database.Key("COMMAND", "TEXT", "PRIMARY KEY NOT NULL"), new Database.Key("PERMISSION_LEVEL", "INT", "NOT NULL"));
 				db.createTable("USERS", new Database.Key("ID", "TEXT", "PRIMARY KEY NOT NULL"), new Database.Key("PERMISSION_LEVEL", "INT", "NOT NULL"));
@@ -161,6 +184,7 @@ public class DiscordBot {
 					db.insert("USERS", new String[]{"ID", "PERMISSION_LEVEL"}, new String[]{"'"+credentials[2]+"'", String.valueOf(ICommand.OWNER)});
 				}
 			}
+			
 			CommandRegistry.registerCommand(new HelpCommand());
 			CommandRegistry.registerCommand(new EvaluateCommand());
 			CommandRegistry.registerCommand(new UptimeCommand());
@@ -171,11 +195,14 @@ public class DiscordBot {
 			CommandRegistry.registerCommand(new PurgeCommand());
 			CommandRegistry.registerCommand(new ShrugCommand());
 			CommandRegistry.registerCommand(new NLPCommand());
+			
 			ownerId = credentials[2];
+			
 			for (ScriptEngineFactory factory : scriptEngineManager.getEngineFactories()) {
 				System.out.println("Loaded script engine '"+factory.getEngineName()+"' v"+factory.getEngineVersion()+
 						" for language: "+factory.getLanguageName()+" v"+factory.getLanguageVersion());
 			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("There was an error initializing the bot, rebuilding the credentials.txt");
@@ -225,8 +252,8 @@ public class DiscordBot {
 	}
 	
 	public static String doesCommandMatch(ICommand command, String message) {
-		if (message.startsWith(String.valueOf(Config.commandDiscriminator))) {
-			message = message.replaceFirst(String.valueOf(Config.commandDiscriminator), "");
+		if (message.startsWith(String.valueOf(CONFIG.commandDiscriminator))) {
+			message = message.replaceFirst(String.valueOf(CONFIG.commandDiscriminator), "");
 			String commandName = message.contains(" ") ? message.split(" ")[0] : message;
 			if (command.getCommand().equals(commandName))
 				return commandName;

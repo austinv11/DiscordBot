@@ -1,7 +1,6 @@
 package com.austinv11.DiscordBot.web;
 
 import com.austinv11.DiscordBot.DiscordBot;
-import com.austinv11.DiscordBot.reference.Config;
 import com.google.gson.Gson;
 import fi.iki.elonen.NanoHTTPD;
 import sx.blah.discord.handle.obj.Message;
@@ -19,7 +18,7 @@ public class FrontEnd extends NanoHTTPD {
 	public static volatile List<Message> console = new ArrayList<>();
 	
 	public FrontEnd(String secretKey) {
-		super(Config.hostName != null && !Config.hostName.equals("null") ? Config.hostName : null, Config.port);
+		super(DiscordBot.CONFIG.hostName != null && !DiscordBot.CONFIG.hostName.equals("null") ? DiscordBot.CONFIG.hostName : null, DiscordBot.CONFIG.port);
 		this.secretKey = secretKey;
 	}
 	
