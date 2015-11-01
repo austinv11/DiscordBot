@@ -42,6 +42,6 @@ public class ShrugCommand implements ICommand {
 	
 	@Override
 	public Optional<String> executeCommand(String parameters, User executor, Channel channel, Message commandMessage) throws CommandSyntaxException {
-		return Optional.of("¯\\_(ツ)_/¯");
+		return Optional.of("¯\\\\\\_(ツ)_/¯");
 	}
 }

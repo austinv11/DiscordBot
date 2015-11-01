@@ -54,18 +54,7 @@ public class BaseHandler {
 		DiscordBot.messageCache.get(event.getMessage().getChannelID()).remove(event.getMessage().getMessageID());
 	}
 	
-	public static void messageReceivedEvent(MessageReceivedEvent event) {
-		Message message = event.getMessage();
-		Channel channel = DiscordBot.instance.getChannelByID(message.getChannelID());
-		if (channel == null)
-			return;
-		
-		//Logging messages
-		System.out.println("["+message.getTimestamp().toString()+"]"+message.getAuthor().getName()+"("+
-				channel.getName()+")"+": "+message.getContent());
-		FrontEnd.console.add(message);
-		
-		//Checking spam filters
+	private static void checkSpamFilter(Message message) {
 		if (Config.enableSpamFilter) {
 			long currentTime = System.currentTimeMillis();
 			if (cooldown.containsKey(message.getAuthor().getID())) {
@@ -100,46 +89,65 @@ public class BaseHandler {
 			}
 			messageCounter.put(message.getAuthor().getID(), messageCount);
 		}
+	}
+	
+	private static boolean checkForCommand(Channel channel, Message message) {
+		if (message.getContent().startsWith(String.valueOf(Config.commandDiscriminator))) {
+			try {
+				for (ICommand command : CommandRegistry.getAllCommands()) {
+					String commandPrefix = DiscordBot.doesCommandMatch(command, message.getContent());
+					if (commandPrefix != null) {
+						int commandLevel = command.getPermissionLevel();
+						if (DiscordBot.getUserPermissionLevel(message.getAuthor()) >= commandLevel) {
+							try {
+								String params = message.getContent().contains(" ") ? message.getContent().replaceFirst(
+										message.getContent().split(" ")[0]+" ", "") : "";
+								Optional<String> result = command.executeCommand(params, message.getAuthor(),
+										channel, message);
+								if (result != null && result.isPresent()) {
+									DiscordBot.sendMessage(result.get(), message.getChannelID());
+								}
+							} catch (CommandSyntaxException e) {
+								DiscordBot.sendMessage("Error: "+e.errorMessage+"\nNeed help? Read the help page"+
+												" for this command by doing '"+Config.commandDiscriminator+"help "+command.getCommand()+"'",
+										message.getChannelID());
+							}
+							if (command.removesCommandMessage()) {
+								DiscordBot.instance.deleteMessage(message.getMessageID(), message.getChannelID());
+							}
+						} else {
+							DiscordBot.sendMessage("Error: You don't have permission to use this command!", message.getChannelID());
+						}
+						return true;
+					}
+				}
+				DiscordBot.sendMessage("No matching commands found! Run '"+Config.commandDiscriminator+
+						"help' to list all available commands", message.getChannelID());
+				return true;
+			} catch (ParseException | IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return false; //Command not detected
+	}
+	
+	public static void messageReceivedEvent(MessageReceivedEvent event) {
+		Message message = event.getMessage();
+		Channel channel = DiscordBot.instance.getChannelByID(message.getChannelID());
+		if (channel == null)
+			return;
+		
+		//Logging messages
+		System.out.println("["+message.getTimestamp().toString()+"]"+message.getAuthor().getName()+"("+
+				channel.getName()+")"+": "+message.getContent());
+		FrontEnd.console.add(message);
+		
+		checkSpamFilter(message);
 		
 		//Make sure the user isn't the bot
 		if (!message.getAuthor().getID().equals(DiscordBot.instance.getOurUser().getID())) {
-			//Attempting find execute commands
-			if (message.getContent().startsWith(String.valueOf(Config.commandDiscriminator))) {
-				try {
-					for (ICommand command : CommandRegistry.getAllCommands()) {
-						if (DiscordBot.doesCommandMatch(command, message.getContent())) {
-							int commandLevel = command.getPermissionLevel();
-							if (DiscordBot.getUserPermissionLevel(message.getAuthor()) >= commandLevel) {
-								try {
-									String params = message.getContent().contains(" ") ? message.getContent().replaceFirst(
-											message.getContent().split(" ")[0]+" ", "") : "";
-									Optional<String> result = command.executeCommand(params, message.getAuthor(),
-											channel, message);
-									if (result != null && result.isPresent()) {
-										DiscordBot.sendMessage(result.get(), message.getChannelID());
-									}
-									if (command.removesCommandMessage()) {
-										DiscordBot.instance.deleteMessage(message.getMessageID(), message.getChannelID());
-									}
-								} catch (CommandSyntaxException e) {
-									DiscordBot.sendMessage("Error: "+e.errorMessage+"\nNeed help? Read the help page"+
-													" for this command by doing '"+Config.commandDiscriminator+"help "+command.getCommand()+"'",
-											message.getChannelID());
-								}
-							} else {
-								DiscordBot.sendMessage("Error: You don't have permission to use this command!", message.getChannelID());
-							}
-							return;
-						}
-					}
-					DiscordBot.sendMessage("No matching commands found! Run '"+Config.commandDiscriminator+
-							"help' to list all available commands", message.getChannelID());
-				} catch (ParseException | IOException e) {
-					e.printStackTrace();
-				}
-				
-			//Not a command, cache it and check for table disrespect
-			} else {
+			if (!checkForCommand(channel, message)){
+				//Not a command, cache it and check for table disrespect
 				DiscordBot.messageCache.get(message.getChannelID()).put(message.getMessageID(), new Message(message.getMessageID(), message.getContent(),
 						message.getAuthor(), message.getChannelID(), message.getMentionedIDs(), message.getTimestamp()));
 				

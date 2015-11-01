@@ -50,25 +50,25 @@ public class HelpCommand implements ICommand {
 		String result = "";
 		if (parameters == null || parameters.isEmpty()) {
 			List<ICommand> commands = CommandRegistry.getAllCommands();
-			result += commands.size()+" commands found:\n";
+			result += commands.size()+" commands found:\n```";
 			TreeSet<String> commandNames = new TreeSet<>();
 			for (ICommand command : commands)
 				commandNames.add(command.getCommand());
 			for (String commandName : commandNames)
 				result += "*"+commandName+"\n";
-			result += "For help about a specific command run the command '"+Config.commandDiscriminator+"help [command]'";
+			result += "```For help about a specific command run the command '"+Config.commandDiscriminator+"help [command]'";
 		} else {
 			List<ICommand> commands = CommandRegistry.getAllCommands();
 			for (ICommand command : commands) {
-				if (DiscordBot.doesCommandMatch(command, Config.commandDiscriminator+parameters)) {
+				if (DiscordBot.doesCommandMatch(command, Config.commandDiscriminator+parameters) != null) {
 					result += "Help page for command '"+command.getCommand()+"':\n";
-					result += "Permission level: "+DiscordBot.getRankForLevel(command.getPermissionLevel())+"\n";
+					result += "```Permission level: "+DiscordBot.getRankForLevel(command.getPermissionLevel())+"\n";
 					result += command.getHelpMessage()+"\n";
 					result += "Aliases: ";
 					for (String alias : command.getAliases())
 						result += alias+", ";
 					result = result.substring(0, result.length()-2)+"\n";
-					result += "Usage: "+Config.commandDiscriminator+command.getUsage();
+					result += "Usage: "+Config.commandDiscriminator+command.getUsage()+"```";
 					break;
 				}
 			}

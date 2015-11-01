@@ -88,6 +88,6 @@ public class EvaluateCommand implements ICommand {
 			System.out.println(response);
 			result = "Result: "+response+"\nLanguage: "+language+"\nExecution took "+executionTime+" ms";
 		}
-		return Optional.ofNullable(result.isEmpty() ? null : result);
+		return Optional.ofNullable(result.isEmpty() ? null : "```"+result+"```");
 	}
 }

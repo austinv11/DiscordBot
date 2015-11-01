@@ -170,6 +170,7 @@ public class DiscordBot {
 			CommandRegistry.registerCommand(new PermissionsCommand());
 			CommandRegistry.registerCommand(new PurgeCommand());
 			CommandRegistry.registerCommand(new ShrugCommand());
+			CommandRegistry.registerCommand(new NLPCommand());
 			ownerId = credentials[2];
 			for (ScriptEngineFactory factory : scriptEngineManager.getEngineFactories()) {
 				System.out.println("Loaded script engine '"+factory.getEngineName()+"' v"+factory.getEngineVersion()+
@@ -223,17 +224,17 @@ public class DiscordBot {
 		return cache;
 	}
 	
-	public static boolean doesCommandMatch(ICommand command, String message) {
+	public static String doesCommandMatch(ICommand command, String message) {
 		if (message.startsWith(String.valueOf(Config.commandDiscriminator))) {
 			message = message.replaceFirst(String.valueOf(Config.commandDiscriminator), "");
 			String commandName = message.contains(" ") ? message.split(" ")[0] : message;
 			if (command.getCommand().equals(commandName))
-				return true;
+				return commandName;
 			for (String alias : command.getAliases())
-				if (message.equals(alias))
-					return true;
+				if (commandName.equals(alias))
+					return alias;
 		}
-		return false;
+		return null;
 	}
 	
 	public static void restart() {
@@ -246,7 +247,7 @@ public class DiscordBot {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		main(new String[0]);
+		main(new String[0]); //FIXME: Double posts
 	}
 	
 	public static int getUserPermissionLevel(User user) {
