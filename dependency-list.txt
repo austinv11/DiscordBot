@@ -9,7 +9,6 @@ net.tomp2p:opus-wrapper:1.3
 org.abstractj.kalium:kalium:0.4.0
 net.jodah:typetools:0.4.3
 # Discord Bot dependencies
-org.apache.commons:commons-lang3:3.4
 org.xerial:sqlite-jdbc:3.7.2
 com.google.code.gson:gson:2.4
 edu.stanford.nlp:stanford-corenlp:3.5.2

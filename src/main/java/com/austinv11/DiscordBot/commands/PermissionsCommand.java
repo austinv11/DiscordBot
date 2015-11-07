@@ -4,7 +4,6 @@ import com.austinv11.DiscordBot.DiscordBot;
 import com.austinv11.DiscordBot.api.CommandRegistry;
 import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
-import com.austinv11.DiscordBot.reference.Config;
 import sx.blah.discord.handle.obj.Channel;
 import sx.blah.discord.handle.obj.Guild;
 import sx.blah.discord.handle.obj.Message;
@@ -155,7 +154,7 @@ public class PermissionsCommand implements ICommand {
 	}
 	
 	private User getUser(String userToFind) {
-		for (Guild guild : DiscordBot.instance.getGuildList())
+		for (Guild guild : DiscordBot.instance.getGuilds())
 			for (User user : guild.getUsers()) {
 				if (user.getName().equals(userToFind)) { //Doesn't ignore case because there are too many users
 					return user;

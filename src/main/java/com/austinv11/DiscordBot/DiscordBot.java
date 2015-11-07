@@ -9,12 +9,10 @@ import com.austinv11.DiscordBot.reference.Database;
 import com.austinv11.DiscordBot.web.FrontEnd;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.apache.commons.lang3.StringEscapeUtils;
-import org.json.simple.parser.ParseException;
 import sx.blah.discord.DiscordClient;
-import sx.blah.discord.handle.IListener;
-import sx.blah.discord.handle.impl.events.*;
+import sx.blah.discord.handle.impl.AnnotatedEventDispatcher;
 import sx.blah.discord.handle.obj.*;
+import sx.blah.discord.util.MessageBuilder;
 
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
@@ -37,92 +35,44 @@ public class DiscordBot {
 	public static HashMap<String, HashMap<String, Message>> messageCache = new HashMap<>(); //TODO: Optimize
 	public static Config CONFIG = new Config();
 	
-	//Makes sure to escape all special characters
-	public static Message sendMessage(String content, String channelID, String... mentions) throws IOException, ParseException {
-		return instance.sendMessage(StringEscapeUtils.escapeJson(content), channelID, mentions);
-	}
-	
 	public static void ready() {
 		User user = instance.getOurUser();
 		System.out.println("Logged in as "+user.getName()+" with user id "+user.getID()+", this user is "+user.getPresence());
 		System.out.println("This user's avatar ("+user.getAvatar()+") is located at the url "+user.getAvatarURL());
-		try {
-			if (!credentials[4].equals("null")) {
-				if (credentials[4].contains("https://discord.gg/")
-						|| credentials[2].contains("http://discord.gg/")) {
-					String invite = credentials[4].split(".gg/")[1].split(" ")[0];
-					System.out.println("Received invite code "+invite);
-					Invite invite1 = new Invite(invite);
-					Invite.InviteResponse response = invite1.accept();
-					sendMessage(String.format("Hello, %s! I am a bot and I was invited to the %s channel",
-							response.getGuildName(), response.getChannelName()), response.getChannelID());
-					System.out.println("Accepted initial invitation");
-				} else {
-					System.out.println("Invite url "+credentials[4]+" is invalid!");
-				}
+		if (!credentials[4].equals("null")) {
+			if (credentials[4].contains("https://discord.gg/") && acceptInvite(credentials[4])) {
+				System.out.println("Accepted initial invitation");
+			} else {
+				System.out.println("Invite url "+credentials[4]+" is invalid!");
 			}
-		} catch (NullPointerException exception) {
-			//TODO: remove, "inviter" in the invite object is always null for some reason
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-		List<Guild> guilds = instance.getGuildList();
+		List<Guild> guilds = instance.getGuilds();
 		System.out.println("Guilds connected to:");
 		for (Guild guild : guilds) {
 			System.out.println("*'"+guild.getName()+"' with id "+guild.getID()+" with channels:");
 			for (Channel channel : guild.getChannels()) {
-				if (!messageCache.containsKey(channel.getChannelID())) {
-					messageCache.put(channel.getChannelID(), formMessageCache(channel.getMessages()));
+				if (!messageCache.containsKey(channel.getID())) {
+					messageCache.put(channel.getID(), formMessageCache(channel.getMessages()));
 				}
-				System.out.println("\t*'"+channel.getName()+"' with id "+channel.getChannelID());
+				System.out.println("\t*'"+channel.getName()+"' with id "+channel.getID());
 			}
 		}
 	}
 	
-	private static void registerListeners() { //TODO Remember to update
-		//Holy anonymous classes batman
-		instance.getDispatcher().registerListener(new IListener<GuildCreateEvent>() {
-			@Override
-			public void receive(GuildCreateEvent event) {
-				BaseHandler.receive(event);
-			}
-		});
-		instance.getDispatcher().registerListener(new IListener<InviteReceivedEvent>() {
-			@Override
-			public void receive(InviteReceivedEvent event) {
-				BaseHandler.receive(event);
-			}
-		});
-		instance.getDispatcher().registerListener(new IListener<MentionEvent>() {
-			@Override
-			public void receive(MentionEvent event) {
-				BaseHandler.receive(event);
-			}
-		});
-		instance.getDispatcher().registerListener(new IListener<MessageDeleteEvent>() {
-			@Override
-			public void receive(MessageDeleteEvent event) {
-				BaseHandler.receive(event);
-			}
-		});
-		instance.getDispatcher().registerListener(new IListener<MessageReceivedEvent>() {
-			@Override
-			public void receive(MessageReceivedEvent event) {
-				BaseHandler.receive(event);
-			}
-		});
-		instance.getDispatcher().registerListener(new IListener<MessageSendEvent>() {
-			@Override
-			public void receive(MessageSendEvent event) {
-				BaseHandler.receive(event);
-			}
-		});
-		instance.getDispatcher().registerListener(new IListener<ReadyEvent>() {
-			@Override
-			public void receive(ReadyEvent event) {
-				BaseHandler.receive(event);
-			}
-		});
+	public static boolean acceptInvite(String invite) {
+		try {
+			String inviteCode = invite.split(".gg/")[1].split(" ")[0];
+			System.out.println("Received invite code "+inviteCode);
+			Invite invite1 = new Invite(inviteCode);
+			Invite.InviteResponse response = invite1.details();
+			invite1.accept();
+			new MessageBuilder().appendContent(String.format("Hello, %s! I am a bot and I was invited to join you guys at the %s channel",
+					response.getGuildName(), response.getChannelName())).withChannel(response.getChannelID());
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 	public static void main(String[] args) {
@@ -149,7 +99,8 @@ public class DiscordBot {
 				(server = new FrontEnd(credentials[3])).start();
 			}
 			
-			registerListeners();
+			instance.setDispatcher(new AnnotatedEventDispatcher());
+			instance.getDispatcher().registerListener(new BaseHandler());
 			
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				@Override
@@ -246,8 +197,8 @@ public class DiscordBot {
 	private static HashMap<String, Message> formMessageCache(List<Message> messageList) {
 		HashMap<String, Message> cache = new HashMap<>();
 		for (Message message : messageList)
-			cache.put(message.getMessageID(), new Message(message.getMessageID(), message.getContent(), message.getAuthor(), 
-					message.getChannelID(), message.getMentionedIDs(), message.getTimestamp()));//Instantiation makes sure the base api doesn't break anything
+			cache.put(message.getID(), new Message(message.getID(), message.getContent(), message.getAuthor(), 
+					message.getChannel(), message.getTimestamp()));//Instantiation makes sure the base api doesn't break anything
 		return cache;
 	}
 	

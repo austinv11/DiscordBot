@@ -52,14 +52,14 @@ public class WhoisCommand implements ICommand {
 				args = args.replaceFirst(" ", "");
 			if (command.equals("guild")) {
 				if (args.isEmpty()) {
-					outside: for (Guild guild : DiscordBot.instance.getGuildList())
+					outside: for (Guild guild : DiscordBot.instance.getGuilds())
 						for (User user : guild.getUsers())
 							if (user.getID().equals(executor.getID())) {
 								result = "Guild "+guild.getName()+" has the id "+guild.getID();
 								break outside;
 							}
 				} else {
-					for (Guild guild : DiscordBot.instance.getGuildList())
+					for (Guild guild : DiscordBot.instance.getGuilds())
 						if (guild.getName().equalsIgnoreCase(args)) {
 							result = "Guild "+args+" has the id "+guild.getID();
 							break;
@@ -67,10 +67,10 @@ public class WhoisCommand implements ICommand {
 				}
 			} else if (command.equals("channel")) {
 				if (args.isEmpty()) {
-					result = "Channel "+channel.getName()+" has the id "+channel.getChannelID();
+					result = "Channel "+channel.getName()+" has the id "+channel.getID();
 				} else {
 					boolean found = false;
-					 outside: for (Guild guild : DiscordBot.instance.getGuildList()) {
+					 outside: for (Guild guild : DiscordBot.instance.getGuilds()) {
 						 inside: for (User user : guild.getUsers())
 							 if (user.getID().equals(executor.getID())) {
 								 found = true;
@@ -79,7 +79,7 @@ public class WhoisCommand implements ICommand {
 						 if (found) {
 							 for (Channel channelFound : guild.getChannels()) {
 								 if (channelFound.getName().equalsIgnoreCase(args)) {
-									 result = "Channel "+args+" has the id "+channel.getChannelID();
+									 result = "Channel "+args+" has the id "+channel.getID();
 									 break outside;
 								 } else {
 									 found = false;
@@ -92,7 +92,7 @@ public class WhoisCommand implements ICommand {
 				if (args.isEmpty()) {
 					result = "User "+executor.getName()+" has the id "+executor.getID()+" and has a permission level of "+DiscordBot.getUserPermissionLevel(executor)+" with an avatar located at "+executor.getAvatarURL();
 				} else {
-					outside: for (Guild guild : DiscordBot.instance.getGuildList())
+					outside: for (Guild guild : DiscordBot.instance.getGuilds())
 						for (User user : guild.getUsers()) {
 							if (user.getName().equals(args)) { //Doesn't ignore case because there are too many users
 								result = "User "+args+" has the id "+user.getID()+" with an avatar located at "+user.getAvatarURL();

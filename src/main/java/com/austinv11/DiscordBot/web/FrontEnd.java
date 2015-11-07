@@ -27,7 +27,7 @@ public class FrontEnd extends NanoHTTPD {
 		if (session.getUri().endsWith("element/console")) {
 			return newFixedLengthResponse(concatList(console));
 		} else if (session.getUri().endsWith("element/guilds")) {
-			return newFixedLengthResponse(concatList(DiscordBot.instance.getGuildList()));
+			return newFixedLengthResponse(concatList(DiscordBot.instance.getGuilds()));
 		} else if (session.getUri().contains("/js/")) {
 			return newFixedLengthResponse(getTextFromClasspath("js/"+session.getUri().split("/js/")[1]));
 		} else if (session.getUri().contains("/css/")) {

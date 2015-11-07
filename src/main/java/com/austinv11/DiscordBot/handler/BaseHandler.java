@@ -5,12 +5,11 @@ import com.austinv11.DiscordBot.api.CommandRegistry;
 import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
 import com.austinv11.DiscordBot.web.FrontEnd;
-import org.json.simple.parser.ParseException;
-import sx.blah.discord.handle.IEvent;
+import sx.blah.discord.handle.impl.EventSubscriber;
 import sx.blah.discord.handle.impl.events.*;
 import sx.blah.discord.handle.obj.Channel;
-import sx.blah.discord.handle.obj.Invite;
 import sx.blah.discord.handle.obj.Message;
+import sx.blah.discord.util.MessageBuilder;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -22,35 +21,32 @@ public class BaseHandler {
 	private static HashMap<String, Integer> messageCounter = new HashMap<>();
 	private static HashMap<String, Long> cooldown = new HashMap<>();
 	
-	public static void guildCreateEvent(GuildCreateEvent event) {
+	@EventSubscriber
+	public void guildCreateEvent(GuildCreateEvent event) {
 		
 	}
 	
-	public static void inviteReceivedEvent(InviteReceivedEvent event) {
+	@EventSubscriber
+	public void inviteReceivedEvent(InviteReceivedEvent event) {
 		
 	}
 	
-	public static void mentionEvent(MentionEvent event) {
+	@EventSubscriber
+	public void mentionEvent(MentionEvent event) {
 		try {
-			try {
-				if (event.getMessage().getContent().contains("https://discord.gg/")
-						|| event.getMessage().getContent().contains("http://discord.gg/")) {
-					String invite = event.getMessage().getContent().split(".gg/")[1].split(" ")[0];
-					System.out.println("Received invite code "+invite);
-					Invite invite1 = new Invite(invite);
-					Invite.InviteResponse response = invite1.accept();
-					DiscordBot.sendMessage(String.format("Hello, %s! I am a bot and I was invited to the %s channel",
-							response.getGuildName(), response.getChannelName()), response.getChannelID());
-					}
-			} catch (NullPointerException exception) {}//TODO: remove, "inviter" in the invite object is always null for some reason
+			if (event.getMessage().getContent().contains("https://discord.gg/")
+					|| event.getMessage().getContent().contains("http://discord.gg/")) {
+				DiscordBot.acceptInvite(event.getMessage().getContent());
+				}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public static void messageDeleteEvent(MessageDeleteEvent event) {
+	@EventSubscriber
+	public void messageDeleteEvent(MessageDeleteEvent event) {
 		//Remove deleted message from cache
-		DiscordBot.messageCache.get(event.getMessage().getChannelID()).remove(event.getMessage().getMessageID());
+		DiscordBot.messageCache.get(event.getMessage().getChannel().getID()).remove(event.getMessage().getID());
 	}
 	
 	private static void checkSpamFilter(Message message) {
@@ -61,7 +57,7 @@ public class BaseHandler {
 					cooldown.remove(message.getAuthor().getID());
 				} else {
 					try {
-						DiscordBot.instance.deleteMessage(message.getMessageID(), message.getChannelID());
+						DiscordBot.instance.deleteMessage(message.getID(), message.getChannel().getID());
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -76,13 +72,8 @@ public class BaseHandler {
 				if (messageCount >= DiscordBot.CONFIG.maxUserMessagesPerSecond) {
 					messageCounter.put(message.getAuthor().getID(), 0);
 					cooldown.put(message.getAuthor().getID(), currentTime);
-					try {
-						DiscordBot.sendMessage("User @"+message.getAuthor().getName()+" has exceeded the maximum of "+DiscordBot.CONFIG.maxUserMessagesPerSecond+
-										" messages per second, he has been muted for "+DiscordBot.CONFIG.cooldownTime+" seconds", message.getChannelID(),
-								message.getAuthor().getID());
-					} catch (IOException | ParseException e) {
-						e.printStackTrace();
-					}
+					new MessageBuilder().withContent("User "+message.getAuthor().mention()+" has exceeded the maximum of "+DiscordBot.CONFIG.maxUserMessagesPerSecond+
+							" messages per second, he has been muted for "+DiscordBot.CONFIG.cooldownTime+" seconds").withChannel(message.getChannel()).build();
 					return;
 				}
 			}
@@ -104,35 +95,37 @@ public class BaseHandler {
 								Optional<String> result = command.executeCommand(params, message.getAuthor(),
 										channel, message);
 								if (result != null && result.isPresent()) {
-									DiscordBot.sendMessage(result.get(), message.getChannelID());
+									new MessageBuilder().withContent(result.get()).withChannel(message.getChannel()).build();
 								}
 							} catch (CommandSyntaxException e) {
-								DiscordBot.sendMessage("Error: "+e.errorMessage+"\nNeed help? Read the help page"+
-												" for this command by doing '"+DiscordBot.CONFIG.commandDiscriminator+"help "+command.getCommand()+"'",
-										message.getChannelID());
+								new MessageBuilder().withContent("Error: "+e.errorMessage+"\nNeed help? Read the help " +
+										"page for this command by doing ").appendContent(DiscordBot.CONFIG.commandDiscriminator+
+										"help "+command.getCommand(), MessageBuilder.Styles.CODE).withChannel(message.getChannel()).build();
 							}
 							if (command.removesCommandMessage()) {
-								DiscordBot.instance.deleteMessage(message.getMessageID(), message.getChannelID());
+								DiscordBot.instance.deleteMessage(message.getID(), message.getChannel().getID());
 							}
 						} else {
-							DiscordBot.sendMessage("Error: You don't have permission to use this command!", message.getChannelID());
+							new MessageBuilder().withContent("Error: You don't have permission to use this command!")
+									.withChannel(message.getChannel()).build();
 						}
 						return true;
 					}
 				}
-				DiscordBot.sendMessage("No matching commands found! Run '"+DiscordBot.CONFIG.commandDiscriminator+
-						"help' to list all available commands", message.getChannelID());
+				new MessageBuilder().withContent("No matching commands found! Run '"+DiscordBot.CONFIG.commandDiscriminator+
+						"help' to list all available commands").withChannel(message.getChannel()).build();
 				return true;
-			} catch (ParseException | IOException e) {
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 		return false; //Command not detected
 	}
 	
-	public static void messageReceivedEvent(MessageReceivedEvent event) {
+	@EventSubscriber
+	public void messageReceivedEvent(MessageReceivedEvent event) {
 		Message message = event.getMessage();
-		Channel channel = DiscordBot.instance.getChannelByID(message.getChannelID());
+		Channel channel = message.getChannel();
 		if (channel == null)
 			return;
 		
@@ -147,26 +140,24 @@ public class BaseHandler {
 		if (!message.getAuthor().getID().equals(DiscordBot.instance.getOurUser().getID())) {
 			if (!checkForCommand(channel, message)){
 				//Not a command, cache it and check for table disrespect
-				DiscordBot.messageCache.get(message.getChannelID()).put(message.getMessageID(), new Message(message.getMessageID(), message.getContent(),
-						message.getAuthor(), message.getChannelID(), message.getMentionedIDs(), message.getTimestamp()));
+				DiscordBot.messageCache.get(message.getChannel().getID()).put(message.getID(), new Message(message.getID(), 
+						message.getContent(), message.getAuthor(), message.getChannel(), message.getTimestamp()));
 				
 				if (DiscordBot.CONFIG.enableRespectTables) {
 					if (message.getContent().contains("(╯°□°）╯︵ ┻━┻")) {
-						try {
-							//Please respect tables
-							DiscordBot.sendMessage("┬─┬ノ(ಠ_ಠノ)\nPlease respect tables", message.getChannelID());
-						} catch (IOException | ParseException e) {
-							e.printStackTrace();
-						}
+						//Please respect tables
+						new MessageBuilder().withContent("┬─┬ノ(ಠ_ಠノ)\nPlease respect tables")
+								.withChannel(message.getChannel()).build();
 					}
 				}
 			}
 		}
 	}
 	
-	public static void messageSendEvent(MessageSendEvent event) {
+	@EventSubscriber
+	public void messageSendEvent(MessageSendEvent event) {
 		Message message = event.getMessage();
-		Channel channel = DiscordBot.instance.getChannelByID(message.getChannelID());
+		Channel channel = message.getChannel();
 		if (channel == null)
 			return;
 		
@@ -176,30 +167,55 @@ public class BaseHandler {
 		FrontEnd.console.add(message);
 		
 		//Caching it
-		DiscordBot.messageCache.get(message.getChannelID()).put(message.getMessageID(), new Message(message.getMessageID(), message.getContent(),
-				message.getAuthor(), message.getChannelID(), message.getMentionedIDs(), message.getTimestamp()));
+		DiscordBot.messageCache.get(message.getChannel().getID()).put(message.getID(), new Message(message.getID(), message.getContent(),
+				message.getAuthor(), message.getChannel(), message.getTimestamp()));
 	}
 	
-	public static void readyEvent(ReadyEvent event) {
+	@EventSubscriber
+	public void readyEvent(ReadyEvent event) {
 		//Init
 		DiscordBot.ready();
 	}
 	
-	public static void receive(IEvent event) { //TODO: Remember to update
-		if (event instanceof GuildCreateEvent) {
-			guildCreateEvent((GuildCreateEvent) event);
-		} else if (event instanceof InviteReceivedEvent) {
-			inviteReceivedEvent((InviteReceivedEvent) event);
-		} else if (event instanceof MentionEvent) {
-			mentionEvent((MentionEvent) event);
-		} else if (event instanceof MessageDeleteEvent) {
-			messageDeleteEvent((MessageDeleteEvent) event);
-		} else if (event instanceof MessageReceivedEvent) {
-			messageReceivedEvent((MessageReceivedEvent) event);
-		} else if (event instanceof MessageSendEvent) {
-			messageSendEvent((MessageSendEvent) event);
-		} else if (event instanceof ReadyEvent) {
-			readyEvent((ReadyEvent) event);
-		}
+	@EventSubscriber
+	public void messageUpdateEvent(MessageUpdateEvent event) {
+		
 	}
+	
+	@EventSubscriber
+	public void prescenseUpdateEvent(PresenceUpdateEvent event) {
+		
+	}
+	
+	@EventSubscriber
+	public void typingEvent(TypingEvent event) {
+		
+	}
+	
+	@EventSubscriber
+	public void userJoinEvent(UserJoinEvent event) {
+		
+	}
+	
+	@EventSubscriber
+	public void userLeaveEvent(UserLeaveEvent event) {
+		
+	}
+	
+	@EventSubscriber
+	public void channelCreateEvent(ChannelCreateEvent event) {
+		
+	}
+	
+	@EventSubscriber
+	public void channelDeleteEvent(ChannelDeleteEvent event) {
+		
+	}
+	
+	@EventSubscriber
+	public void guildLeaveEvent(GuildLeaveEvent event) {
+		
+	}
+	
+	
 }
