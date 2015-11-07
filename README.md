@@ -15,13 +15,13 @@ When contributing, *ALWAYS* use tabs and [1tbs](https://en.wikipedia.org/wiki/In
 
 ### Making sure the project works
 
-If you add a new dependency, add it through the [dependency-list.txt](https://github.com/austinv11/DiscordBot/blob/master/dependency-list.txt). And if the new dependency requires a new repo, add it to the build.gradle normally and also add it to the [repo-list.txt](https://github.com/austinv11/DiscordBot/blob/master/repo-list.txt). This is nescessary for how the installer works.
+If you add a new dependency, add it through the [dependency-list.txt](https://github.com/austinv11/DiscordBot/blob/master/dependency-list.txt) and **not** in the build.gradle, it will be handled automatically. And if the new dependency requires a new repo, add it to the build.gradle normally as well as adding it to the [repo-list.txt](https://github.com/austinv11/DiscordBot/blob/master/repo-list.txt). This is nescessary for how the installer works.
 
 ### Compiling the project
 
 (**Note:** Skip step 1 if you aren't on a UNIX system as the [CompileUnofficialBuilds.sh](https://github.com/austinv11/DiscordBot/blob/master/CompileUnofficialBuilds.sh) script is written in bash–not batch, if you wish to port it to batch please submit a pull request!)
 
-1. Open a command prompt/terminal and cd to the project directory and then enter: `sh ./CompileUnofficialBuilds.sh`. This will ensure that the currently compiled version of NanoHTTPD and Discord4J are up to date.
+1. Open a command prompt/terminal and cd to the project directory and then enter: `sh ./CompileUnofficialBuilds.sh`. This will ensure that the currently compiled versions of NanoHTTPD and Discord4J are up to date.
 2. Enter `sh gradlew build`
 3. The compiled .jar should be located in `./build/libs/DiscordBot-VERSION.jar`
 
