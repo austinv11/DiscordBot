@@ -10,7 +10,7 @@ else
 	mkdir "./libs/"
 	echo "Attempting to compile NanoHTTPD..."
 	cd "./nanohttpd/core/"
-	mvn "package" "-Dmaven.test.skip=true"
+	mvn "package" "-Dmaven.test.skip=true" "-Dmaven.javadoc.skip=true"
 	find ./target/ -name '*.jar' -exec mv {} ../../libs/ \;
 	cd "../../"
 	echo "Attempting to compile Discord4J..."
