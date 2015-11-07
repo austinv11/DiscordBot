@@ -99,4 +99,3 @@ credentials.txt
 credentials-backup.txt
 *.db
 config.json
-!libs/*.jar

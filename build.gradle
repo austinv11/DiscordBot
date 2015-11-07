@@ -16,10 +16,21 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     
-    new File("./dependency-list.txt").eachLine { line ->
-        if (!line.startsWith("#")) 
-            compile line
-    }
+    //Dependencies for Discord4J
+    compile "org.slf4j:slf4j-api:1.7.12"
+    compile "org.apache.httpcomponents:httpcore:4.4.1"
+    compile "com.googlecode.json-simple:json-simple:1.1.1"
+    compile "org.apache.httpcomponents:httpclient:4.5"
+    compile "org.java-websocket:Java-WebSocket:1.3.0"
+    compile "org.slf4j:slf4j-simple:1.7.12"
+    compile "net.tomp2p:opus-wrapper:1.3"
+    compile "org.abstractj.kalium:kalium:0.4.0"
+    compile "net.jodah:typetools:0.4.3"
     
-    compile fileTree(dir: 'libs', include: '*.jar')
+    //Dependencies for the discord bot
+    compile "org.apache.commons:commons-lang3:3.4"
+    compile "org.xerial:sqlite-jdbc:3.7.2"
+    compile "com.google.code.gson:gson:2.4"
+    compile "edu.stanford.nlp:stanford-corenlp:3.5.2"
+    compile "edu.stanford.nlp:stanford-corenlp:3.5.2:models"
 }
