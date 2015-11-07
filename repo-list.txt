@@ -1,0 +1,2 @@
+http://repo1.maven.org/maven2
+http://tomp2p.net/dev/mvn/
