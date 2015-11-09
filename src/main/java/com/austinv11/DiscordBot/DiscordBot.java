@@ -146,6 +146,7 @@ public class DiscordBot {
 			CommandRegistry.registerCommand(new PurgeCommand());
 			CommandRegistry.registerCommand(new ShrugCommand());
 			CommandRegistry.registerCommand(new NLPCommand());
+			CommandRegistry.registerCommand(new PingCommand());
 			
 			ownerId = credentials[2];
 			

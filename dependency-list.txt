@@ -8,6 +8,7 @@ org.slf4j:slf4j-simple:1.7.12
 net.tomp2p:opus-wrapper:1.3
 org.abstractj.kalium:kalium:0.4.0
 net.jodah:typetools:0.4.3
+org.apache.commons:commons-lang3:3.4
 # Discord Bot dependencies
 org.xerial:sqlite-jdbc:3.7.2
 com.google.code.gson:gson:2.4
