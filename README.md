@@ -1,5 +1,5 @@
 # DiscordBot
-A feature-packed and moddable bot for Discord
+A feature-packed and moddable bot for Discord. See the [wiki](https://github.com/austinv11/DiscordBot/wiki) for more information about the bot.
 
 ## Contributing to the project
 
