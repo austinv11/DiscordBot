@@ -97,6 +97,7 @@ Temporary Items
 # Misc
 credentials.txt
 credentials-backup.txt
+credentials-backup1.txt
 *.db
 config.json
 !libs/*.jar

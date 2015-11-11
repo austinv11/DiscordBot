@@ -192,6 +192,9 @@ public class DiscordBot {
 			e.printStackTrace();
 			System.out.println("There was an error initializing the bot, rebuilding the credentials.txt");
 			File file = new File("./credentials.txt");
+			if (file.exists()) {
+				file.renameTo(new File("./credentials-backup.txt"));
+			}
 			try {
 				file.createNewFile();
 				PrintStream writer = new PrintStream(file);
