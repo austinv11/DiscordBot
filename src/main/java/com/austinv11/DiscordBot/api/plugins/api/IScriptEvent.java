@@ -28,8 +28,8 @@ public interface IScriptEvent {
 			for (PluginManifest.EventHandler handler : plugin.manifest.event_handlers)
 				if (handler.event_filter.equals(getName())) {
 					try {
-						ScriptEngine engine = DiscordBot.getScriptEngineForLang(handler.script.split(".")[1]);
-						engine.put("CONTEXT", this);
+						ScriptEngine engine = DiscordBot.getScriptEngineForLang(handler.script.split("\\.")[1]);
+						engine.put("CONTEXT", new EventContext(this, plugin));
 						engine.eval(plugin.eventHandlers.get(getName()));
 					} catch (ScriptException e) {
 						e.printStackTrace();

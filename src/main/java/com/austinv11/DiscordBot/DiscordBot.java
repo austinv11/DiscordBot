@@ -3,6 +3,8 @@ package com.austinv11.DiscordBot;
 import com.austinv11.DiscordBot.api.CommandRegistry;
 import com.austinv11.DiscordBot.api.commands.ICommand;
 import com.austinv11.DiscordBot.api.plugins.Plugin;
+import com.austinv11.DiscordBot.api.plugins.api.io.FileIO;
+import com.austinv11.DiscordBot.api.plugins.api.io.IOMode;
 import com.austinv11.DiscordBot.commands.*;
 import com.austinv11.DiscordBot.handler.BaseHandler;
 import com.austinv11.DiscordBot.reference.Config;
@@ -154,14 +156,21 @@ public class DiscordBot {
 			
 			ownerId = credentials[2];
 			
-			//TODO: add bindings to the script engine manager
-			scriptEngineManager.put("Config", CONFIG);
+			addGlobalScriptBinding("Config", CONFIG);
+			addGlobalScriptBinding(IOMode.class);
+			addGlobalScriptBinding(FileIO.class);
 			for (ScriptEngineFactory factory : scriptEngineManager.getEngineFactories()) {
 				System.out.println("Loaded script engine '"+factory.getEngineName()+"' v"+factory.getEngineVersion()+
 						" for language: "+factory.getLanguageName()+" v"+factory.getLanguageVersion());
 			}
 			
 			System.out.println("Loading plugins...");
+			File pluginDataDir = new File(FileIO.PLUGIN_DATA_DIR);
+			if (!pluginDataDir.exists())
+				pluginDataDir.mkdir();
+			if (!pluginDataDir.isDirectory())
+				throw new IOError(new Throwable(FileIO.PLUGIN_DATA_DIR+" is not a directory!"));
+			
 			File pluginDir = new File("./plugins");
 			if (!pluginDir.exists())
 				pluginDir.mkdir();
@@ -307,5 +316,13 @@ public class DiscordBot {
 		ScriptEngine engine = scriptEngineManager.getEngineByExtension(lang);
 		engine = engine == null ? scriptEngineManager.getEngineByName(lang) : engine;
 		return engine;
+	}
+	
+	public static void addGlobalScriptBinding(Class clazz) throws IllegalAccessException, InstantiationException {
+		addGlobalScriptBinding(clazz.getSimpleName(), clazz.newInstance());
+	}
+	
+	public static void addGlobalScriptBinding(String name, Object object) {
+		scriptEngineManager.put(name, object);
 	}
 }

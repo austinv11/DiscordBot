@@ -5,6 +5,7 @@ import com.austinv11.DiscordBot.api.CommandRegistry;
 import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
 import com.austinv11.DiscordBot.api.plugins.api.CommandContext;
+import com.austinv11.DiscordBot.api.plugins.api.Context;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import sx.blah.discord.handle.obj.Channel;
@@ -62,6 +63,7 @@ public class Plugin {
 			for (PluginManifest.Command command : manifest.commands) {
 				String contents = readContents(new BufferedReader(new InputStreamReader(zipFile.getInputStream(
 						zipFile.getEntry(command.executor)))));
+				Plugin plugin = this;
 				CommandRegistry.registerCommand(new ICommand() {
 					@Override
 					public String getCommand() {
@@ -97,7 +99,7 @@ public class Plugin {
 					public Optional<String> executeCommand(String parameters, User executor, Channel channel, Message commandMessage) throws CommandSyntaxException {
 						try {
 							ScriptEngine engine = DiscordBot.getScriptEngineForLang(command.executor.split("\\.")[1]);
-							engine.put("CONTEXT", new CommandContext(parameters, executor, channel, commandMessage));
+							engine.put("CONTEXT", new CommandContext(parameters, executor, channel, commandMessage, plugin));
 							return Optional.of(String.valueOf(engine.eval(contents)));
 						} catch (ScriptException e) {
 							e.printStackTrace();
@@ -130,7 +132,7 @@ public class Plugin {
 					String snippet = value.substring(beginningIndex+1, endingIndex+1);
 					try {
 						ScriptEngine engine = DiscordBot.getScriptEngineForLang("js");
-						engine.put("CONTEXT", manifest);
+						engine.put("CONTEXT", new Context(this));
 						String eval = String.valueOf(engine.eval(snippet));
 						value = value.replace("%"+snippet+"%", eval);
 					} catch (ScriptException e) {

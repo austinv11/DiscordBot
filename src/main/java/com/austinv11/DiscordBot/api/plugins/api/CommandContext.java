@@ -1,5 +1,6 @@
 package com.austinv11.DiscordBot.api.plugins.api;
 
+import com.austinv11.DiscordBot.api.plugins.Plugin;
 import sx.blah.discord.handle.obj.Channel;
 import sx.blah.discord.handle.obj.Message;
 import sx.blah.discord.handle.obj.User;
@@ -7,7 +8,7 @@ import sx.blah.discord.handle.obj.User;
 /**
  * An object representing the context for which a command is executed
  */
-public class CommandContext { //TODO use custom implementations of User, Channel and Message
+public class CommandContext extends Context { //TODO use custom implementations of User, Channel and Message
 	
 	/**
 	 * The string representation of the message with the command prefix cut out
@@ -26,10 +27,11 @@ public class CommandContext { //TODO use custom implementations of User, Channel
 	 */
 	public Message originalMessage;
 	
-	public CommandContext(String parameters, User executor, Channel channel, Message originalMessage) {
+	public CommandContext(String parameters, User executor, Channel channel, Message originalMessage, Plugin plugin) {
 		this.parameters = parameters;
 		this.executor = executor;
 		this.channel = channel;
 		this.originalMessage = originalMessage;
+		this.plugin = plugin;
 	}
 }
