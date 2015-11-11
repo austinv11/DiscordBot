@@ -48,7 +48,7 @@ public class NLPCommand implements ICommand {
 	
 	@Override
 	public String getUsage() {
-		return getCommand()+" <message>";
+		return getCommand()+" [message]";
 	}
 	
 	@Override

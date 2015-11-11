@@ -34,12 +34,12 @@ public class WhoisCommand implements ICommand {
 	
 	@Override
 	public String getHelpMessage() {
-		return "This command will retrieve internal api information about a user";
+		return "This command will retrieve internal api information about a guild, channel or user";
 	}
 	
 	@Override
 	public int getDefaultPermissionLevel() {
-		return ICommand.DEFAULT;
+		return ICommand.ANYONE;
 	}
 	
 	@Override

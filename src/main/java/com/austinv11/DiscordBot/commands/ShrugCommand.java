@@ -32,7 +32,7 @@ public class ShrugCommand implements ICommand {
 	
 	@Override
 	public String getHelpMessage() {
-		return "Prints a shrug emoticon";
+		return "Prints a shrug emoticon ¯\\\\\\_(ツ)_/¯";
 	}
 	
 	@Override
