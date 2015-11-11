@@ -2,6 +2,7 @@ package com.austinv11.DiscordBot;
 
 import com.austinv11.DiscordBot.api.CommandRegistry;
 import com.austinv11.DiscordBot.api.commands.ICommand;
+import com.austinv11.DiscordBot.api.plugins.Plugin;
 import com.austinv11.DiscordBot.commands.*;
 import com.austinv11.DiscordBot.handler.BaseHandler;
 import com.austinv11.DiscordBot.reference.Config;
@@ -14,6 +15,7 @@ import sx.blah.discord.handle.impl.AnnotatedEventDispatcher;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.MessageBuilder;
 
+import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import java.io.*;
@@ -34,6 +36,7 @@ public class DiscordBot {
 	private static String[] credentials;
 	public static HashMap<String, HashMap<String, Message>> messageCache = new HashMap<>(); //TODO: Optimize
 	public static Config CONFIG = new Config();
+	public static Plugin[] plugins;
 	
 	public static void ready() {
 		User user = instance.getOurUser();
@@ -147,12 +150,33 @@ public class DiscordBot {
 			CommandRegistry.registerCommand(new ShrugCommand());
 			CommandRegistry.registerCommand(new NLPCommand());
 			CommandRegistry.registerCommand(new PingCommand());
+			CommandRegistry.registerCommand(new PluginsCommand());
 			
 			ownerId = credentials[2];
 			
+			//TODO: add bindings to the script engine manager
+			scriptEngineManager.put("Config", CONFIG);
 			for (ScriptEngineFactory factory : scriptEngineManager.getEngineFactories()) {
 				System.out.println("Loaded script engine '"+factory.getEngineName()+"' v"+factory.getEngineVersion()+
 						" for language: "+factory.getLanguageName()+" v"+factory.getLanguageVersion());
+			}
+			
+			System.out.println("Loading plugins...");
+			File pluginDir = new File("./plugins");
+			if (!pluginDir.exists())
+				pluginDir.mkdir();
+			if (!pluginDir.isDirectory())
+				throw new IOError(new Throwable("./plugins is not a directory!"));
+			File[] pluginFiles = pluginDir.listFiles(pathname->{
+				return pathname.getName().endsWith(".zip");
+			});
+			if (pluginFiles != null && pluginFiles.length > 0) {
+				plugins = new Plugin[pluginFiles.length];
+				for (int i = 0; i < pluginFiles.length; i++) {
+					plugins[i] = new Plugin(pluginFiles[i]);
+					System.out.println("Plugin '"+plugins[i].manifest.plugin_id+"' v"+plugins[i].manifest.version+" loaded ("+
+							(i+1)+"/"+pluginFiles.length+")");
+				}
 			}
 			
 		} catch (Exception e) {
@@ -277,5 +301,11 @@ public class DiscordBot {
 			return val;
 		} catch (NumberFormatException e) {}
 		return ICommand.DEFAULT;
+	}
+	
+	public static ScriptEngine getScriptEngineForLang(String lang) {
+		ScriptEngine engine = scriptEngineManager.getEngineByExtension(lang);
+		engine = engine == null ? scriptEngineManager.getEngineByName(lang) : engine;
+		return engine;
 	}
 }

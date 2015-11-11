@@ -216,6 +216,4 @@ public class BaseHandler {
 	public void guildLeaveEvent(GuildLeaveEvent event) {
 		
 	}
-	
-	
 }

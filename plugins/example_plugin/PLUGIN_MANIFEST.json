@@ -1,0 +1,23 @@
+{
+  "plugin_id": "ExamplePlugin",
+  "author": "austinv11",
+  "version": "1.0.0",
+  "description": "Any additional info goes here",
+  "commands": [
+    {
+      "name": "test",
+      "aliases": ["t"],
+      "removes_command_message": true,
+      "usage": "CONTEXT.commands[0].name% <params>",
+      "help_message": "This is a demo command",
+      "permission_level": "0",
+      "executor": "path/to/script/script.js"
+    }
+  ],
+  "event_handlers": [
+    {
+      "script": "path/to/script/script.extension",
+      "event_filter": "ExampleEvent"
+    }
+  ]
+}

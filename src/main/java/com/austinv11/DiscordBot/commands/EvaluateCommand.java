@@ -69,8 +69,7 @@ public class EvaluateCommand implements ICommand {
 			String snippet = parameters.replaceFirst(language+" ", "");
 			String response = "null";
 			long currentTime = System.currentTimeMillis();
-			ScriptEngine engine = DiscordBot.scriptEngineManager.getEngineByExtension(language);
-			engine = engine == null ? DiscordBot.scriptEngineManager.getEngineByName(language) : engine;
+			ScriptEngine engine = DiscordBot.getScriptEngineForLang(language);
 			language = engine == null ? "null" : engine.getFactory().getLanguageName();
 			if (engine != null) {
 				ScriptContext context = engine.getContext();
