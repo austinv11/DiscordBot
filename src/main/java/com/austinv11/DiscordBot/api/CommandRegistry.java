@@ -2,6 +2,7 @@ package com.austinv11.DiscordBot.api;
 
 import com.austinv11.DiscordBot.DiscordBot;
 import com.austinv11.DiscordBot.api.commands.ICommand;
+import com.austinv11.DiscordBot.handler.Logger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,7 +30,7 @@ public class CommandRegistry {
 				}
 				DiscordBot.db.closeSelect();
 			} catch (SQLException e) {
-				e.printStackTrace();
+				Logger.log(e);
 			}
 		}
 		if (!commandPermsCached.contains(command.getCommand())) {
@@ -38,7 +39,7 @@ public class CommandRegistry {
 						String.valueOf(command.getDefaultPermissionLevel())});
 				commandPermsCached.add(command.getCommand());
 			} catch (SQLException e) {
-				e.printStackTrace();
+				Logger.log(e);
 			}
 		}
 		commands.add(command);

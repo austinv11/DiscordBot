@@ -1,5 +1,7 @@
 package com.austinv11.DiscordBot.reference;
 
+import com.austinv11.DiscordBot.handler.Logger;
+
 import java.sql.*;
 import java.util.HashMap;
 
@@ -109,7 +111,7 @@ public class Database {
 				connection = DriverManager.getConnection("jdbc:sqlite:"+databaseFile);
 				isConnected = true;
 			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
+				Logger.log(e);
 			}
 		}
 	}

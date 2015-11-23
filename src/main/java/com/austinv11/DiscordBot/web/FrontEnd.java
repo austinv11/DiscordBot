@@ -1,6 +1,7 @@
 package com.austinv11.DiscordBot.web;
 
 import com.austinv11.DiscordBot.DiscordBot;
+import com.austinv11.DiscordBot.handler.Logger;
 import com.google.gson.Gson;
 import fi.iki.elonen.NanoHTTPD;
 import sx.blah.discord.handle.obj.Message;
@@ -61,7 +62,7 @@ public class FrontEnd extends NanoHTTPD {
 			reader.close();
 			return fileText;
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logger.log(e);
 		}
 		return "<li>404 Not Found</li>";
 	}

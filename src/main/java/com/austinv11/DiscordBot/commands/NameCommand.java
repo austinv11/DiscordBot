@@ -3,6 +3,7 @@ package com.austinv11.DiscordBot.commands;
 import com.austinv11.DiscordBot.DiscordBot;
 import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
+import com.austinv11.DiscordBot.handler.Logger;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.simple.parser.ParseException;
 import sx.blah.discord.handle.obj.Channel;
@@ -55,7 +56,7 @@ public class NameCommand implements ICommand {
 			return Optional.of("The bot username has been changed to "+parameters.substring(0, truncated ?
 					32 : parameters.length())+(truncated ? " (truncated)" : ""));
 		} catch (UnsupportedEncodingException | ParseException e) {
-			e.printStackTrace();
+			Logger.log(e);
 		}
 		return Optional.empty();
 	}

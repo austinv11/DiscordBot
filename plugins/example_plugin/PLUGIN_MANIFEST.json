@@ -8,7 +8,7 @@
       "name": "test",
       "aliases": ["t"],
       "removes_command_message": true,
-      "usage": "CONTEXT.commands[0].name% <params>",
+      "usage": "%CONTEXT.plugin.commands[0].name;% <params>",
       "help_message": "This is a demo command",
       "permission_level": "0",
       "executor": "path/to/script/script.js"

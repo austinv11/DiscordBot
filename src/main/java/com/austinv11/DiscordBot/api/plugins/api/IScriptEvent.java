@@ -3,6 +3,7 @@ package com.austinv11.DiscordBot.api.plugins.api;
 import com.austinv11.DiscordBot.DiscordBot;
 import com.austinv11.DiscordBot.api.plugins.Plugin;
 import com.austinv11.DiscordBot.api.plugins.PluginManifest;
+import com.austinv11.DiscordBot.handler.Logger;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
@@ -29,10 +30,10 @@ public interface IScriptEvent {
 				if (handler.event_filter.equals(getName())) {
 					try {
 						ScriptEngine engine = DiscordBot.getScriptEngineForLang(handler.script.split("\\.")[1]);
-						engine.put("CONTEXT", new EventContext(this, plugin));
+						engine.put("CONTEXT", new EventContext(this, plugin.manifest));
 						engine.eval(plugin.eventHandlers.get(getName()));
 					} catch (ScriptException e) {
-						e.printStackTrace();
+						Logger.log(e);
 					}
 				}
 	}

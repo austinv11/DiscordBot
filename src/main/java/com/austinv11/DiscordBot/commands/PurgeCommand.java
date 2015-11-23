@@ -3,6 +3,7 @@ package com.austinv11.DiscordBot.commands;
 import com.austinv11.DiscordBot.DiscordBot;
 import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
+import com.austinv11.DiscordBot.handler.Logger;
 import sx.blah.discord.handle.obj.Channel;
 import sx.blah.discord.handle.obj.Message;
 import sx.blah.discord.handle.obj.User;
@@ -48,7 +49,7 @@ public class PurgeCommand implements ICommand {
 		try {
 			DiscordBot.db.disconnect();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Logger.log(e);
 		}
 		new File("./"+DiscordBot.CONFIG.databaseFile).delete();
 		DiscordBot.restart();

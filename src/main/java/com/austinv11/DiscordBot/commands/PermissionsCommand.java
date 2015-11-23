@@ -4,6 +4,7 @@ import com.austinv11.DiscordBot.DiscordBot;
 import com.austinv11.DiscordBot.api.CommandRegistry;
 import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
+import com.austinv11.DiscordBot.handler.Logger;
 import sx.blah.discord.handle.obj.Channel;
 import sx.blah.discord.handle.obj.Guild;
 import sx.blah.discord.handle.obj.Message;
@@ -72,7 +73,7 @@ public class PermissionsCommand implements ICommand {
 							DiscordBot.db.update("USERS", "ID", "'"+user.getID()+"'", toUpdate);
 							result = "User "+thing+" now has a permission level of "+newLevel;
 						} catch (SQLException e) {
-							e.printStackTrace();
+							Logger.log(e);
 						}
 					}
 				}
@@ -108,11 +109,11 @@ public class PermissionsCommand implements ICommand {
 									result = "Created rank "+thing+" with a permission level of "+newLevel;
 								}
 							} catch (SQLException e) {
-								e.printStackTrace();
+								Logger.log(e);
 							}
 						}
 					} catch (SQLException e) {
-						e.printStackTrace();
+						Logger.log(e);
 					}
 				}
 			} else if (command.equals("command")) {
@@ -138,7 +139,7 @@ public class PermissionsCommand implements ICommand {
 								DiscordBot.db.update("COMMANDS", "COMMAND", "'"+thing+"'", toUpdate);
 								result = "Updated command "+thing+" to have a permission level of "+DiscordBot.getRankForLevel(level);
 							} catch (SQLException e) {
-								e.printStackTrace();
+								Logger.log(e);
 							}
 						}
 					}

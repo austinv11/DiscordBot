@@ -1,6 +1,6 @@
 package com.austinv11.DiscordBot.api.plugins.api;
 
-import com.austinv11.DiscordBot.api.plugins.Plugin;
+import com.austinv11.DiscordBot.api.plugins.PluginManifest;
 import sx.blah.discord.handle.obj.Channel;
 import sx.blah.discord.handle.obj.Message;
 import sx.blah.discord.handle.obj.User;
@@ -27,7 +27,7 @@ public class CommandContext extends Context { //TODO use custom implementations 
 	 */
 	public Message originalMessage;
 	
-	public CommandContext(String parameters, User executor, Channel channel, Message originalMessage, Plugin plugin) {
+	public CommandContext(String parameters, User executor, Channel channel, Message originalMessage, PluginManifest plugin) {
 		this.parameters = parameters;
 		this.executor = executor;
 		this.channel = channel;

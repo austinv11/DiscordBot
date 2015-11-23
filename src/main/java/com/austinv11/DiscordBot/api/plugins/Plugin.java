@@ -6,6 +6,7 @@ import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
 import com.austinv11.DiscordBot.api.plugins.api.CommandContext;
 import com.austinv11.DiscordBot.api.plugins.api.Context;
+import com.austinv11.DiscordBot.handler.Logger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import sx.blah.discord.handle.obj.Channel;
@@ -56,7 +57,7 @@ public class Plugin {
 			for (PluginManifest.EventHandler handler : manifest.event_handlers)
 				insertProperInfo(handler);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			Logger.log(e);
 		}
 		
 		if (manifest.commands != null && manifest.commands.length > 0) {
@@ -99,10 +100,10 @@ public class Plugin {
 					public Optional<String> executeCommand(String parameters, User executor, Channel channel, Message commandMessage) throws CommandSyntaxException {
 						try {
 							ScriptEngine engine = DiscordBot.getScriptEngineForLang(command.executor.split("\\.")[1]);
-							engine.put("CONTEXT", new CommandContext(parameters, executor, channel, commandMessage, plugin));
+							engine.put("CONTEXT", new CommandContext(parameters, executor, channel, commandMessage, plugin.manifest));
 							return Optional.of(String.valueOf(engine.eval(contents)));
 						} catch (ScriptException e) {
-							e.printStackTrace();
+							Logger.log(e);
 							return Optional.of("Script error for plugin '"+manifest.plugin_id+"', see the bot's log for details");
 						}
 					}
@@ -132,12 +133,13 @@ public class Plugin {
 					String snippet = value.substring(beginningIndex+1, endingIndex+1);
 					try {
 						ScriptEngine engine = DiscordBot.getScriptEngineForLang("js");
-						engine.put("CONTEXT", new Context(this));
+						engine.put("CONTEXT", new Context(manifest));
 						String eval = String.valueOf(engine.eval(snippet));
 						value = value.replace("%"+snippet+"%", eval);
 					} catch (ScriptException e) {
-						e.printStackTrace();
-						value = value.replaceFirst("%"+snippet+"%", "null");
+						Logger.log(e);
+						value = value.replaceAll("%"+snippet+"%", "null");
+						break;
 					}
 				}
 				

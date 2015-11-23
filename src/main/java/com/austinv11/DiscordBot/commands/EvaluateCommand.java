@@ -3,6 +3,7 @@ package com.austinv11.DiscordBot.commands;
 import com.austinv11.DiscordBot.DiscordBot;
 import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
+import com.austinv11.DiscordBot.handler.Logger;
 import sx.blah.discord.handle.obj.Channel;
 import sx.blah.discord.handle.obj.Message;
 import sx.blah.discord.handle.obj.User;
@@ -84,7 +85,7 @@ public class EvaluateCommand implements ICommand {
 				}
 			}
 			long executionTime = System.currentTimeMillis()-currentTime;
-			System.out.println(response);
+			Logger.log(response);
 			result = "Result: "+response+"\nLanguage: "+language+"\nExecution took "+executionTime+" ms";
 		}
 		return Optional.ofNullable(result.isEmpty() ? null : "```"+result+"```");

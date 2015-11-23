@@ -39,7 +39,7 @@ public class BaseHandler {
 				DiscordBot.acceptInvite(event.getMessage().getContent());
 				}
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logger.log(e);
 		}
 	}
 	
@@ -59,7 +59,7 @@ public class BaseHandler {
 					try {
 						DiscordBot.instance.deleteMessage(message.getID(), message.getChannel().getID());
 					} catch (IOException e) {
-						e.printStackTrace();
+						Logger.log(e);
 					}
 					return;
 				}
@@ -116,7 +116,7 @@ public class BaseHandler {
 						"help' to list all available commands").withChannel(message.getChannel()).build();
 				return true;
 			} catch (IOException e) {
-				e.printStackTrace();
+				Logger.log(e);
 			}
 		}
 		return false; //Command not detected
@@ -130,8 +130,7 @@ public class BaseHandler {
 			return;
 		
 		//Logging messages
-		System.out.println("["+message.getTimestamp().toString()+"]"+message.getAuthor().getName()+"("+
-				channel.getName()+")"+": "+message.getContent());
+		Logger.log(message.getAuthor().getName()+"("+channel.getName()+")"+": "+message.getContent(), message.getTimestamp());
 		FrontEnd.console.add(message);
 		
 		checkSpamFilter(message);
@@ -162,8 +161,7 @@ public class BaseHandler {
 			return;
 		
 		//Logging messages
-		System.out.println("["+message.getTimestamp().toString()+"]"+message.getAuthor().getName()+"("+
-				channel.getName()+")"+": "+message.getContent());
+		Logger.log(message.getAuthor().getName()+"("+channel.getName()+")"+": "+message.getContent(), message.getTimestamp());
 		FrontEnd.console.add(message);
 		
 		//Caching it

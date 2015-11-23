@@ -1,6 +1,7 @@
 package com.austinv11.DiscordBot.api.commands;
 
 import com.austinv11.DiscordBot.DiscordBot;
+import com.austinv11.DiscordBot.handler.Logger;
 import sx.blah.discord.handle.obj.Channel;
 import sx.blah.discord.handle.obj.Message;
 import sx.blah.discord.handle.obj.User;
@@ -83,7 +84,7 @@ public interface ICommand {
 			}
 			DiscordBot.db.closeSelect();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Logger.log(e);
 		}
 		return getDefaultPermissionLevel();
 	}

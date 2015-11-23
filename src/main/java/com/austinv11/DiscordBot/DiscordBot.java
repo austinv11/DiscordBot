@@ -8,6 +8,7 @@ import com.austinv11.DiscordBot.api.plugins.api.io.FileIO;
 import com.austinv11.DiscordBot.api.plugins.api.io.IOMode;
 import com.austinv11.DiscordBot.commands.*;
 import com.austinv11.DiscordBot.handler.BaseHandler;
+import com.austinv11.DiscordBot.handler.Logger;
 import com.austinv11.DiscordBot.reference.Config;
 import com.austinv11.DiscordBot.reference.Database;
 import com.austinv11.DiscordBot.web.FrontEnd;
@@ -43,24 +44,24 @@ public class DiscordBot {
 	
 	public static void ready() {
 		User user = instance.getOurUser();
-		System.out.println("Logged in as "+user.getName()+" with user id "+user.getID()+", this user is "+user.getPresence());
-		System.out.println("This user's avatar ("+user.getAvatar()+") is located at the url "+user.getAvatarURL());
+		Logger.log("Logged in as "+user.getName()+" with user id "+user.getID()+", this user is "+user.getPresence());
+		Logger.log("This user's avatar ("+user.getAvatar()+") is located at the url "+user.getAvatarURL());
 		if (!credentials[4].equals("null")) {
 			if (credentials[4].contains("https://discord.gg/") && acceptInvite(credentials[4])) {
-				System.out.println("Accepted initial invitation");
+				Logger.log("Accepted initial invitation");
 			} else {
-				System.out.println("Invite url "+credentials[4]+" is invalid!");
+				Logger.log("Invite url "+credentials[4]+" is invalid!");
 			}
 		}
 		List<Guild> guilds = instance.getGuilds();
-		System.out.println("Guilds connected to:");
+		Logger.log("Guilds connected to:");
 		for (Guild guild : guilds) {
-			System.out.println("*'"+guild.getName()+"' with id "+guild.getID()+" with channels:");
+			Logger.log("*'"+guild.getName()+"' with id "+guild.getID()+" with channels:");
 			for (Channel channel : guild.getChannels()) {
 				if (!messageCache.containsKey(channel.getID())) {
 					messageCache.put(channel.getID(), formMessageCache(channel.getMessages()));
 				}
-				System.out.println("\t*'"+channel.getName()+"' with id "+channel.getID());
+				Logger.log("\t*'"+channel.getName()+"' with id "+channel.getID());
 			}
 		}
 	}
@@ -68,7 +69,7 @@ public class DiscordBot {
 	public static boolean acceptInvite(String invite) {
 		try {
 			String inviteCode = invite.split(".gg/")[1].split(" ")[0];
-			System.out.println("Received invite code "+inviteCode);
+			Logger.log("Received invite code "+inviteCode);
 			Invite invite1 = new Invite(inviteCode);
 			Invite.InviteResponse response = invite1.details();
 			invite1.accept();
@@ -76,7 +77,7 @@ public class DiscordBot {
 					response.getGuildName(), response.getChannelName())).withChannel(response.getChannelID());
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			Logger.log(e);
 			return false;
 		}
 	}
@@ -118,7 +119,7 @@ public class DiscordBot {
 							if (db.isConnected())
 								db.disconnect();
 						} catch (SQLException e) {
-							e.printStackTrace();
+							Logger.log(e);
 						}
 					}
 				}
@@ -162,11 +163,11 @@ public class DiscordBot {
 			addGlobalScriptBinding(FileIO.class);
 			addGlobalScriptBinding(PermissionsLevel.class);
 			for (ScriptEngineFactory factory : scriptEngineManager.getEngineFactories()) {
-				System.out.println("Loaded script engine '"+factory.getEngineName()+"' v"+factory.getEngineVersion()+
+				Logger.log("Loaded script engine '"+factory.getEngineName()+"' v"+factory.getEngineVersion()+
 						" for language: "+factory.getLanguageName()+" v"+factory.getLanguageVersion());
 			}
 			
-			System.out.println("Loading plugins...");
+			Logger.log("Loading plugins...");
 			File pluginDataDir = new File(FileIO.PLUGIN_DATA_DIR);
 			if (!pluginDataDir.exists())
 				pluginDataDir.mkdir();
@@ -185,14 +186,14 @@ public class DiscordBot {
 				plugins = new Plugin[pluginFiles.length];
 				for (int i = 0; i < pluginFiles.length; i++) {
 					plugins[i] = new Plugin(pluginFiles[i]);
-					System.out.println("Plugin '"+plugins[i].manifest.plugin_id+"' v"+plugins[i].manifest.version+" loaded ("+
+					Logger.log("Plugin '"+plugins[i].manifest.plugin_id+"' v"+plugins[i].manifest.version+" loaded ("+
 							(i+1)+"/"+pluginFiles.length+")");
 				}
 			}
 			
 		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("There was an error initializing the bot, rebuilding the credentials.txt");
+			Logger.log(e);
+			Logger.log(Logger.Level.FATAL, "There was an error initializing the bot, rebuilding the credentials.txt");
 			File file = new File("./credentials.txt");
 			if (file.exists()) {
 				file.renameTo(new File("./credentials-backup.txt"));
@@ -209,7 +210,7 @@ public class DiscordBot {
 				writer.flush();
 				writer.close();
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				Logger.log(e1);
 			}
 		}
 	}
@@ -255,14 +256,14 @@ public class DiscordBot {
 	}
 	
 	public static void restart() {
-		System.out.println("Restarting the bot...");
+		Logger.log("Restarting the bot...");
 		if (server != null)
 			server.stop();
 		try {
 			if (db.isConnected())
 				db.disconnect();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Logger.log(e);
 		}
 		main(new String[0]); //FIXME: Double posts
 	}
@@ -278,7 +279,7 @@ public class DiscordBot {
 			
 			db.insert("USERS", new String[]{"ID", "PERMISSION_LEVEL"}, new String[]{"'"+user.getID()+"'", String.valueOf(ICommand.DEFAULT)});
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Logger.log(e);
 		}
 		return ICommand.DEFAULT;
 	}
@@ -293,7 +294,7 @@ public class DiscordBot {
 			}
 			db.closeSelect();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Logger.log(e);
 		}
 		return String.valueOf(level);
 	}
@@ -308,7 +309,7 @@ public class DiscordBot {
 			}
 			db.closeSelect();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			Logger.log(e);
 		}
 		try {
 			int val = Integer.valueOf(rank);

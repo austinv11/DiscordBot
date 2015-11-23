@@ -101,3 +101,4 @@ credentials-backup1.txt
 *.db
 config.json
 !libs/*.jar
+*.log

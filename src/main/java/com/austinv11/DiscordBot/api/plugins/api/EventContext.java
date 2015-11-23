@@ -1,6 +1,6 @@
 package com.austinv11.DiscordBot.api.plugins.api;
 
-import com.austinv11.DiscordBot.api.plugins.Plugin;
+import com.austinv11.DiscordBot.api.plugins.PluginManifest;
 
 /**
  * An object representing the context for an event
@@ -12,7 +12,7 @@ public class EventContext extends Context {
 	 */
 	public IScriptEvent event;
 	
-	public EventContext(IScriptEvent event, Plugin plugin) {
+	public EventContext(IScriptEvent event, PluginManifest plugin) {
 		this.event = event;
 		this.plugin = plugin;
 	}
