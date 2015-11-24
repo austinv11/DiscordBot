@@ -55,7 +55,7 @@ public class PluginManifest {
 		/**
 		 * A <b>NUMBER</b> representing the permission level required to use the command<br>
 		 * NOTE: The variable should be a string but it must also be able to be parsed into an integer, the string is
-		 * used to allow for it to support inline programming
+		 * used to allow for it to support inline programming and to add the ability for rank names
 		 */
 		public String permission_level;
 		/**

@@ -93,7 +93,7 @@ public class Plugin {
 					
 					@Override
 					public int getDefaultPermissionLevel() {
-						return Integer.parseInt(command.permission_level);
+						return DiscordBot.getLevelForRank(command.permission_level);
 					}
 					
 					@Override

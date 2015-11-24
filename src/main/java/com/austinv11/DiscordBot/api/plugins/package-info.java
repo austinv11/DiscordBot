@@ -19,9 +19,7 @@
  * <br>
  * NOTE: Many scripting engines provide ways for scripts to use Java APIs or modify certain Java processes, this is
  * <b>HEAVILY</b> discouraged. This is because: the bot's code can change without warning, your actions may cause
- * unintended side effects and it shouldn't be necessary–if the scripting api is lacking, submit post an issue on the
+ * unintended side effects and it shouldn't be necessary–if the scripting api is lacking, submit an issue on the
  * Github repository and it should get addressed.<br>
- * 
- * TODO: Actually implement scripting
  */
 package com.austinv11.DiscordBot.api.plugins;
