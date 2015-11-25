@@ -11,7 +11,7 @@ public class Logger {
 	
 	public static File logFile;
 	static  {
-		logFile = new File("./DiscordBotLog-"+LocalDate.now().toString()+".log");
+		logFile = new File("./logs/DiscordBotLog-"+LocalDate.now().toString()+".log");
 		if (logFile.exists()) {
 			logFile.delete();
 		}

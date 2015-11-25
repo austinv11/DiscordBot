@@ -23,16 +23,21 @@ public class BaseHandler {
 	
 	@EventSubscriber
 	public void guildCreateEvent(GuildCreateEvent event) {
-		
+		Logger.log("Guild '"+event.getGuild().getName()+"' created");
 	}
 	
 	@EventSubscriber
 	public void inviteReceivedEvent(InviteReceivedEvent event) {
-		
+		try {
+			Logger.log("Invite for the '"+event.getInvite().details().getChannelName()+"' channel received");
+		} catch (Exception e) {
+			Logger.log(e);
+		}
 	}
 	
 	@EventSubscriber
 	public void mentionEvent(MentionEvent event) {
+		Logger.log(Logger.Level.DEBUG, "Bot mentioned in message: "+event.getMessage());
 		try {
 			if (event.getMessage().getContent().contains("https://discord.gg/")
 					|| event.getMessage().getContent().contains("http://discord.gg/")) {
@@ -45,6 +50,7 @@ public class BaseHandler {
 	
 	@EventSubscriber
 	public void messageDeleteEvent(MessageDeleteEvent event) {
+		Logger.log("Message '"+event.getMessage().getContent()+"' deleted");
 		//Remove deleted message from cache
 		DiscordBot.messageCache.get(event.getMessage().getChannel().getID()).remove(event.getMessage().getID());
 	}
@@ -177,41 +183,41 @@ public class BaseHandler {
 	
 	@EventSubscriber
 	public void messageUpdateEvent(MessageUpdateEvent event) {
-		
+		Logger.log("Message '"+event.getOldMessage().getContent()+"' edited to '"+event.getNewMessage().getContent()+"'");
 	}
 	
 	@EventSubscriber
-	public void prescenseUpdateEvent(PresenceUpdateEvent event) {
-		
+	public void presenceUpdateEvent(PresenceUpdateEvent event) {
+		Logger.log(Logger.Level.DEBUG, "User "+event.getUser().getName()+" presence updated from "+event.getOldPresence().name()+" to "+event.getNewPresence().name());
 	}
 	
 	@EventSubscriber
 	public void typingEvent(TypingEvent event) {
-		
+		Logger.log(Logger.Level.DEBUG, "User "+event.getUser().getName()+" has started typing");
 	}
 	
 	@EventSubscriber
 	public void userJoinEvent(UserJoinEvent event) {
-		
+		Logger.log("User "+event.getUser().getName()+" joined", event.getJoinTime());
 	}
 	
 	@EventSubscriber
 	public void userLeaveEvent(UserLeaveEvent event) {
-		
+		Logger.log("User "+event.getUser()+" left");
 	}
 	
 	@EventSubscriber
 	public void channelCreateEvent(ChannelCreateEvent event) {
-		
+		Logger.log("Channel "+event.getChannel().getName()+" created");
 	}
 	
 	@EventSubscriber
 	public void channelDeleteEvent(ChannelDeleteEvent event) {
-		
+		Logger.log("Channel "+event.getChannel().getName()+" deleted");
 	}
 	
 	@EventSubscriber
 	public void guildLeaveEvent(GuildLeaveEvent event) {
-		
+		Logger.log("Guild "+event.getGuild().getName()+" left");
 	}
 }
