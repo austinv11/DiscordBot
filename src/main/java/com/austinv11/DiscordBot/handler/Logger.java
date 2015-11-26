@@ -3,6 +3,7 @@ package com.austinv11.DiscordBot.handler;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 /**
  * This logs actions to the appropriate place
@@ -30,7 +31,7 @@ public class Logger {
 		}
 	}
 	
-	public static void log(Level level, Object message, LocalDateTime timeStamp, boolean logToFile) {
+	public static void log(Level level, Object message, LocalTime timeStamp, boolean logToFile) {
 		String messageString;
 		if (message instanceof Exception) {
 			StringWriter writer = new StringWriter();
@@ -59,7 +60,15 @@ public class Logger {
 		System.out.println(formattedString);
 	}
 	
+	public static void log(Level level, Object message, LocalDateTime timeStamp, boolean logToFile) {
+		log(level, message, timeStamp.toLocalTime(), logToFile);
+	}
+	
 	public static void log(Level level, Object message, LocalDateTime timeStamp) {
+		log(level, message, timeStamp, true);
+	}
+	
+	public static void log(Level level, Object message, LocalTime timeStamp) {
 		log(level, message, timeStamp, true);
 	}
 	
@@ -68,6 +77,10 @@ public class Logger {
 	}
 	
 	public static void log(Object message, LocalDateTime timeStamp) {
+		log(Level.INFO, message, timeStamp);
+	}
+	
+	public static void log(Object message, LocalTime timeStamp) {
 		log(Level.INFO, message, timeStamp);
 	}
 	
