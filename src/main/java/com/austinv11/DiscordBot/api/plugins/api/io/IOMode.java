@@ -6,7 +6,7 @@ package com.austinv11.DiscordBot.api.plugins.api.io;
 public class IOMode {
 	
 	/**
-	 * Sets the mode to <b>READ-ONLY</b>, only allowing you toread the contents of a file
+	 * Sets the mode to <b>READ-ONLY</b>, only allowing you to read the contents of a file
 	 */
 	public int READ = -1;
 	/**

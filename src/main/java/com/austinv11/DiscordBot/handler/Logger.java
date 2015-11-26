@@ -12,8 +12,21 @@ public class Logger {
 	public static File logFile;
 	static  {
 		logFile = new File("./logs/DiscordBotLog-"+LocalDate.now().toString()+".log");
+		File logDir = new File("./logs");
+		if (!logDir.exists())
+			logDir.mkdir();
+		else
+			if (!logDir.isDirectory()) {
+				logDir.delete();
+				logDir.mkdir();
+			}
 		if (logFile.exists()) {
 			logFile.delete();
+		}
+		try {
+			logFile.createNewFile();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
