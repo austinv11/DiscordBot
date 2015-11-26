@@ -23,6 +23,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import java.io.*;
+import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ public class DiscordBot {
 	public static HashMap<String, HashMap<String, Message>> messageCache = new HashMap<>(); //TODO: Optimize
 	public static Config CONFIG = new Config();
 	public static Plugin[] plugins;
+	public static final int RESTART_EXIT_CODE = 1;
 	
 	public static void ready() {
 		User user = instance.getOurUser();
@@ -113,14 +115,7 @@ public class DiscordBot {
 				@Override
 				public void run() {
 					synchronized (this) {
-						if (server != null)
-							server.stop();
-						try {
-							if (db.isConnected())
-								db.disconnect();
-						} catch (SQLException e) {
-							Logger.log(e);
-						}
+						closeBot();
 					}
 				}
 			});
@@ -257,6 +252,23 @@ public class DiscordBot {
 	
 	public static void restart() {
 		Logger.log("Restarting the bot...");
+		try {
+			Logger.log(DiscordBot.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+			if (System.getProperty("os.name").toLowerCase().contains("win")) { //TODO: Ensure this works
+				Runtime.getRuntime().exec("java -jar "+
+						DiscordBot.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+			} else {
+				Runtime.getRuntime().exec("java -jar "+
+						DiscordBot.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+			}
+		} catch (IOException | URISyntaxException e) {
+			Logger.log(e);
+		}
+		Runtime.getRuntime().exit(RESTART_EXIT_CODE);
+	}
+	
+	public static void closeBot() {
+		Logger.log("Closing the bot...");
 		if (server != null)
 			server.stop();
 		try {
@@ -265,7 +277,6 @@ public class DiscordBot {
 		} catch (SQLException e) {
 			Logger.log(e);
 		}
-		main(new String[0]); //FIXME: Double posts
 	}
 	
 	public static int getUserPermissionLevel(User user) {
