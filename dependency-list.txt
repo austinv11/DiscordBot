@@ -15,4 +15,8 @@ org.xerial:sqlite-jdbc:3.7.2
 com.google.code.gson:gson:2.4
 edu.stanford.nlp:stanford-corenlp:3.5.2
 edu.stanford.nlp:stanford-corenlp:3.5.2:models
-org.ejml:all:0.28
+org.ejml:core:0.28
+org.ejml:dense64:0.28
+org.ejml:denseC64:0.28
+org.ejml:equation:0.28
+org.ejml:simple:0.28
