@@ -1,5 +1,6 @@
 package com.austinv11.DiscordBot.commands;
 
+import com.austinv11.DiscordBot.DiscordBot;
 import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
 import sx.blah.discord.handle.obj.Channel;
@@ -42,6 +43,7 @@ public class ShutdownCommand implements ICommand {
 	
 	@Override
 	public Optional<String> executeCommand(String parameters, User executor, Channel channel, Message commandMessage) throws CommandSyntaxException {
+		Runtime.getRuntime().exit(DiscordBot.RESTART_EXIT_CODE);
 		return Optional.empty();
 	}
 }
