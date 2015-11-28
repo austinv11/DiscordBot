@@ -3,6 +3,7 @@ package com.austinv11.DiscordBot.api.plugins.api.discord;
 import sx.blah.discord.handle.obj.Channel;
 import sx.blah.discord.handle.obj.Message;
 import sx.blah.discord.handle.obj.PrivateChannel;
+import sx.blah.discord.util.MessageBuilder;
 
 import javax.script.ScriptException;
 import java.util.ArrayList;
@@ -83,5 +84,13 @@ public class ScriptChannel {
 					"you sure its a private channel?");
 		}
 		return new ScriptPrivateChannel((PrivateChannel) javaChannel);
+	}
+	
+	/**
+	 * A simple method to send a message to the channel
+	 * @param message The string message
+	 */
+	public void sendMessage(String message) {
+		new MessageBuilder().withChannel(javaChannel).withContent(message).build();
 	}
 }
