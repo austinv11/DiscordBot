@@ -20,7 +20,7 @@ public class UserPresences {
 	 */
 	public int ONLINE = 1;
 	
-	protected static int scriptPresenceFromJavaPresence(Presences presence) {
+	public static int scriptPresenceFromJavaPresence(Presences presence) {
 		UserPresences presences = new UserPresences();
 		switch (presence) {
 			case OFFLINE:

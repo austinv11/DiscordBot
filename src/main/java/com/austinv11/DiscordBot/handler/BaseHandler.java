@@ -4,6 +4,7 @@ import com.austinv11.DiscordBot.DiscordBot;
 import com.austinv11.DiscordBot.api.CommandRegistry;
 import com.austinv11.DiscordBot.api.commands.CommandSyntaxException;
 import com.austinv11.DiscordBot.api.commands.ICommand;
+import com.austinv11.DiscordBot.api.plugins.api.events.discord.*;
 import com.austinv11.DiscordBot.web.FrontEnd;
 import sx.blah.discord.handle.impl.EventSubscriber;
 import sx.blah.discord.handle.impl.events.*;
@@ -24,6 +25,7 @@ public class BaseHandler {
 	@EventSubscriber
 	public void guildCreateEvent(GuildCreateEvent event) {
 		Logger.log("Guild '"+event.getGuild().getName()+"' created");
+		new GuildCreateScriptEvent(event).propagate();
 	}
 	
 	@EventSubscriber
@@ -33,6 +35,7 @@ public class BaseHandler {
 		} catch (Exception e) {
 			Logger.log(e);
 		}
+		new InviteReceivedScriptEvent(event).propagate();
 	}
 	
 	@EventSubscriber
@@ -46,6 +49,7 @@ public class BaseHandler {
 		} catch (Exception e) {
 			Logger.log(e);
 		}
+		new MentionScriptEvent(event).propagate();
 	}
 	
 	@EventSubscriber
@@ -53,6 +57,7 @@ public class BaseHandler {
 		Logger.log("Message '"+event.getMessage().getContent()+"' deleted");
 		//Remove deleted message from cache
 		DiscordBot.messageCache.get(event.getMessage().getChannel().getID()).remove(event.getMessage().getID());
+		new MessageDeleteScriptEvent(event).propagate();
 	}
 	
 	private static void checkSpamFilter(Message message) {
@@ -157,6 +162,8 @@ public class BaseHandler {
 				}
 			}
 		}
+		
+		new MessageReceivedScriptEvent(event).propagate();
 	}
 	
 	@EventSubscriber
@@ -173,6 +180,8 @@ public class BaseHandler {
 		//Caching it
 		DiscordBot.messageCache.get(message.getChannel().getID()).put(message.getID(), new Message(message.getID(), message.getContent(),
 				message.getAuthor(), message.getChannel(), message.getTimestamp()));
+		
+		new MessageSendScriptEvent(event).propagate();
 	}
 	
 	@EventSubscriber
@@ -184,40 +193,48 @@ public class BaseHandler {
 	@EventSubscriber
 	public void messageUpdateEvent(MessageUpdateEvent event) {
 		Logger.log("Message '"+event.getOldMessage().getContent()+"' edited to '"+event.getNewMessage().getContent()+"'");
+		new MessageEditScriptEvent(event).propagate();
 	}
 	
 	@EventSubscriber
 	public void presenceUpdateEvent(PresenceUpdateEvent event) {
 		Logger.log(Logger.Level.DEBUG, "User "+event.getUser().getName()+" presence updated from "+event.getOldPresence().name()+" to "+event.getNewPresence().name());
+		new PresenceUpdateScriptEvent(event).propagate();
 	}
 	
 	@EventSubscriber
 	public void typingEvent(TypingEvent event) {
 		Logger.log(Logger.Level.DEBUG, "User "+event.getUser().getName()+" has started typing");
+		new TypingScriptEvent(event).propagate();
 	}
 	
 	@EventSubscriber
 	public void userJoinEvent(UserJoinEvent event) {
 		Logger.log("User "+event.getUser().getName()+" joined", event.getJoinTime());
+		new UserJoinScriptEvent(event).propagate();
 	}
 	
 	@EventSubscriber
 	public void userLeaveEvent(UserLeaveEvent event) {
 		Logger.log("User "+event.getUser()+" left");
+		new UserLeaveScriptEvent(event).propagate();
 	}
 	
 	@EventSubscriber
 	public void channelCreateEvent(ChannelCreateEvent event) {
 		Logger.log("Channel "+event.getChannel().getName()+" created");
+		new ChannelCreateScriptEvent(event).propagate();
 	}
 	
 	@EventSubscriber
 	public void channelDeleteEvent(ChannelDeleteEvent event) {
 		Logger.log("Channel "+event.getChannel().getName()+" deleted");
+		new ChannelDeleteScriptEvent(event).propagate();
 	}
 	
 	@EventSubscriber
 	public void guildLeaveEvent(GuildLeaveEvent event) {
 		Logger.log("Guild "+event.getGuild().getName()+" left");
+		new GuildLeaveScriptEvent(event).propagate();
 	}
 }

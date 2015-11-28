@@ -5,9 +5,11 @@ import com.austinv11.DiscordBot.api.commands.ICommand;
 import com.austinv11.DiscordBot.api.plugins.Plugin;
 import com.austinv11.DiscordBot.api.plugins.api.bot.PermissionsLevel;
 import com.austinv11.DiscordBot.api.plugins.api.discord.UserPresences;
+import com.austinv11.DiscordBot.api.plugins.api.events.InitEvent;
 import com.austinv11.DiscordBot.api.plugins.api.io.FileIO;
 import com.austinv11.DiscordBot.api.plugins.api.io.IOMode;
 import com.austinv11.DiscordBot.api.plugins.api.util.ISM;
+import com.austinv11.DiscordBot.api.plugins.api.util.Log;
 import com.austinv11.DiscordBot.api.plugins.api.util.Time;
 import com.austinv11.DiscordBot.api.plugins.api.util.Timer;
 import com.austinv11.DiscordBot.commands.*;
@@ -166,6 +168,7 @@ public class DiscordBot {
 			addGlobalScriptBinding(ISM.class);
 			addGlobalScriptBinding(UserPresences.class);
 			addGlobalScriptBinding(Time.class);
+			addGlobalScriptBinding(Log.class);
 			for (ScriptEngineFactory factory : scriptEngineManager.getEngineFactories()) {
 				Logger.log("Loaded script engine '"+factory.getEngineName()+"' v"+factory.getEngineVersion()+
 						" for language: "+factory.getLanguageName()+" v"+factory.getLanguageVersion());
@@ -193,6 +196,9 @@ public class DiscordBot {
 					Logger.log("Plugin '"+plugins[i].manifest.plugin_id+"' v"+plugins[i].manifest.version+" loaded ("+
 							(i+1)+"/"+pluginFiles.length+")");
 				}
+			}
+			for (Plugin plugin : plugins) {
+				new InitEvent(plugin.manifest).propagate();
 			}
 			
 		} catch (Exception e) {
