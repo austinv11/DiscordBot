@@ -40,6 +40,12 @@ public class Plugin {
 	public HashMap<String, String> eventHandlers = new HashMap<>();
 	
 	/**
+	 * A map holding cached event handlers, this is done to save time instead of dealing with file I/O.
+	 * Currently only used for {@link com.austinv11.DiscordBot.api.plugins.api.util.ISM}.
+	 */
+	public HashMap<String, String> commandHandlers = new HashMap<>();
+	
+	/**
 	 * The file the plugin is contained in
 	 */
 	public File pluginFile;
@@ -65,6 +71,7 @@ public class Plugin {
 				String contents = readContents(new BufferedReader(new InputStreamReader(zipFile.getInputStream(
 						zipFile.getEntry(command.executor)))));
 				Plugin plugin = this;
+				commandHandlers.put(command.name, contents);
 				CommandRegistry.registerCommand(new ICommand() {
 					@Override
 					public String getCommand() {

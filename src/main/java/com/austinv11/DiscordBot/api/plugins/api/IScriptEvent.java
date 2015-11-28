@@ -24,7 +24,7 @@ public interface IScriptEvent {
 	/**
 	 * Propagates the event to all the proper event handlers
 	 */
-	default void propogate() {
+	default void propagate() {
 		for (Plugin plugin : DiscordBot.plugins)
 			for (PluginManifest.EventHandler handler : plugin.manifest.event_handlers)
 				if (handler.event_filter.equals(getName())) {

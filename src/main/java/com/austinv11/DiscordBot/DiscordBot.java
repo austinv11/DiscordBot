@@ -6,6 +6,8 @@ import com.austinv11.DiscordBot.api.plugins.Plugin;
 import com.austinv11.DiscordBot.api.plugins.api.bot.PermissionsLevel;
 import com.austinv11.DiscordBot.api.plugins.api.io.FileIO;
 import com.austinv11.DiscordBot.api.plugins.api.io.IOMode;
+import com.austinv11.DiscordBot.api.plugins.api.util.ISM;
+import com.austinv11.DiscordBot.api.plugins.api.util.Timer;
 import com.austinv11.DiscordBot.commands.*;
 import com.austinv11.DiscordBot.handler.BaseHandler;
 import com.austinv11.DiscordBot.handler.Logger;
@@ -158,6 +160,8 @@ public class DiscordBot {
 			addGlobalScriptBinding(IOMode.class);
 			addGlobalScriptBinding(FileIO.class);
 			addGlobalScriptBinding(PermissionsLevel.class);
+			addGlobalScriptBinding(Timer.class);
+			addGlobalScriptBinding(ISM.class);
 			for (ScriptEngineFactory factory : scriptEngineManager.getEngineFactories()) {
 				Logger.log("Loaded script engine '"+factory.getEngineName()+"' v"+factory.getEngineVersion()+
 						" for language: "+factory.getLanguageName()+" v"+factory.getLanguageVersion());
