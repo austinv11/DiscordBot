@@ -105,7 +105,7 @@ public class BaseHandler {
 										message.getContent().split(" ")[0]+" ", "") : "";
 								Optional<String> result = command.executeCommand(params, message.getAuthor(),
 										channel, message);
-								if (result != null && result.isPresent()) {
+								if (result != null && result.isPresent() && !result.get().toLowerCase().equals("null")) {
 									new MessageBuilder().withContent(result.get()).withChannel(message.getChannel()).build();
 								}
 							} catch (CommandSyntaxException e) {

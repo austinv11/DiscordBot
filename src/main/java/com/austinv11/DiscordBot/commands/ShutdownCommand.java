@@ -43,7 +43,7 @@ public class ShutdownCommand implements ICommand {
 	
 	@Override
 	public Optional<String> executeCommand(String parameters, User executor, Channel channel, Message commandMessage) throws CommandSyntaxException {
-		Runtime.getRuntime().exit(DiscordBot.RESTART_EXIT_CODE);
+		Runtime.getRuntime().exit(DiscordBot.INTERNAL_EXIT_CODE);
 		return Optional.empty();
 	}
 }

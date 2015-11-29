@@ -3,6 +3,7 @@ package com.austinv11.DiscordBot;
 import com.austinv11.DiscordBot.api.CommandRegistry;
 import com.austinv11.DiscordBot.api.commands.ICommand;
 import com.austinv11.DiscordBot.api.plugins.Plugin;
+import com.austinv11.DiscordBot.api.plugins.api.bot.Bot;
 import com.austinv11.DiscordBot.api.plugins.api.bot.PermissionsLevel;
 import com.austinv11.DiscordBot.api.plugins.api.discord.UserPresences;
 import com.austinv11.DiscordBot.api.plugins.api.events.InitEvent;
@@ -49,6 +50,7 @@ public class DiscordBot {
 	public static Config CONFIG = new Config();
 	public static Plugin[] plugins;
 	public static final int RESTART_EXIT_CODE = 1;
+	public static final int INTERNAL_EXIT_CODE = 2;
 	
 	public static void ready() {
 		User user = instance.getOurUser();
@@ -169,6 +171,7 @@ public class DiscordBot {
 			addGlobalScriptBinding(UserPresences.class);
 			addGlobalScriptBinding(Time.class);
 			addGlobalScriptBinding(Log.class);
+			addGlobalScriptBinding(Bot.class);
 			for (ScriptEngineFactory factory : scriptEngineManager.getEngineFactories()) {
 				Logger.log("Loaded script engine '"+factory.getEngineName()+"' v"+factory.getEngineVersion()+
 						" for language: "+factory.getLanguageName()+" v"+factory.getLanguageVersion());
