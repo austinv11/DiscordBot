@@ -2,6 +2,8 @@
 
 # Compiles unofficial builds of NanoHTTPD and Discord4J because the necessary versions aren't distributed
 export JAVA_HOME="`/usr/libexec/java_home -v '1.8*'`" #Because macs be stupid with JAVA_HOME
+echo "Updating Github submodules..."
+git submodule foreach git pull origin master #Updates the git submodules, comment out if you don't want this
 echo "Checking if maven is installed..."
 isMvn=$(which mvn)
 if [$isMvn == ""]; then
