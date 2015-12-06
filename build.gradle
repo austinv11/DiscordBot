@@ -39,3 +39,17 @@ jar {
         attributes 'Class-Path': deps.trim()
     }
 }
+
+task pluginDoc(type: Javadoc) {
+    source = sourceSets.main.allJava
+    title = 'DiscordBot Plugin API'
+    include 'com/austinv11/DiscordBot/api/plugins/api/**'
+    include 'com/austinv11/DiscordBot/api/plugins/PluginManifest.java'
+    include 'com/austinv11/DiscordBot/reference/Config.java'
+    destinationDir = file('./build/docs/plugindoc');
+}
+
+task apiDoc(type: Javadoc) {
+    source = sourceSets.main.allJava
+    exclude 'com/austinv11/DiscordBot/api/plugins/api/**'
+}

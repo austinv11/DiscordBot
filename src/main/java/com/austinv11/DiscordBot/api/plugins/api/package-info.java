@@ -1,6 +1,6 @@
 /**
  * This package contains everything related to plugins. Here is the basic overview for how scripts work:
- * Bot start init. -> Scripting Engines loaded -> Plugin manifests read -> Bot finish init. -> Plugins initialized <br>
+ * Bot start init. -&gt; Scripting Engines loaded -&gt; Plugin manifests read -&gt; Bot finish init. -&gt; Plugins initialized <br>
  * <br>
  * Languages supported depends on the scripting engines present, by default all environments have an ECMAScript engine
  * loaded (JavaScript). Additional engines can be added by simply putting their respective binaries in the same folder
@@ -9,10 +9,10 @@
  * Plugins should be placed in the "plugins" folder within the bot's working directory. Each plugin should be "compiled"
  * into a .zip file. The content hierarchy should be as follows:<br>
  * Plugin.zip<br>
- *       --> /PLUGIN_MANIFEST.json<br>
- *       --> /path/to/scripts/<br>
- *                     ----> /script.extension<br>
- *                     ----> /script2.extension<br>
+ *       --&gt; /PLUGIN_MANIFEST.json<br>
+ *       --&gt; /path/to/scripts/<br>
+ *                     ----&gt; /script.extension<br>
+ *                     ----&gt; /script2.extension<br>
  * <br>
  * When a script is executed, there will be an object known as "CONTEXT", this represents what the script is supposed<br>
  * to be processing, for example if the script is an event handler the CONTEXT object will be the event object<br>
@@ -22,4 +22,4 @@
  * unintended side effects and it shouldn't be necessary–if the scripting api is lacking, submit an issue on the
  * Github repository and it should get addressed.<br>
  */
-package com.austinv11.DiscordBot.api.plugins;
+package com.austinv11.DiscordBot.api.plugins.api;

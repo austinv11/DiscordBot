@@ -9,6 +9,7 @@ isMvn=$(which mvn)
 if [$isMvn == ""]; then
 	echo "Maven not installed! Please install it and run this again"
 else
+	rm -rf "./libs/"
 	mkdir "./libs/"
 	echo "Attempting to compile NanoHTTPD..."
 	cd "./nanohttpd/core/"

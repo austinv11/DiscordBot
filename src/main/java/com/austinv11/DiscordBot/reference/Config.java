@@ -2,13 +2,40 @@ package com.austinv11.DiscordBot.reference;
 
 public class Config {
 	
+	/**
+	 * The character used to prefix commands
+	 */
 	public char commandDiscriminator = '!';
-	public int maxUserMessagesPerSecond = 3;
-	public int cooldownTime = 10;
+	/**
+	 * Set to true to prevent users from spamming chat, false to stop the protection
+	 */
 	public boolean enableSpamFilter = false;
+	/**
+	 * The max amount of messages a user could send in one second, depends on {@link #enableSpamFilter}
+	 */
+	public int maxUserMessagesPerSecond = 3;
+	/**
+	 * The cooldown time before a user could send messages again after {@link #maxUserMessagesPerSecond} has been exceeded
+	 */
+	public int cooldownTime = 10;
+	/**
+	 * The file name for the permissions database
+	 */
 	public String databaseFile = "permissions.db";
+	/**
+	 * Set to true to enable the server front end
+	 */
 	public boolean runServerFrontEnd = true;
+	/**
+	 * The hostname, or localhost if null, for the server front end
+	 */
 	public String hostName = null;
+	/**
+	 * The port for the server front end to use
+	 */
 	public int port = 8080;
+	/**
+	 * Set to true to make the bot remind people to not flip tables
+	 */
 	public boolean enableRespectTables = true;
 }
