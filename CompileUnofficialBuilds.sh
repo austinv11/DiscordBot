@@ -6,7 +6,8 @@ echo "Updating Github submodules..."
 git submodule foreach git pull origin master #Updates the git submodules, comment out if you don't want this
 echo "Checking if maven is installed..."
 isMvn=$(which mvn)
-if [$isMvn == ""]; then
+if [ $isMvn == "" ]; 
+then
 	echo "Maven not installed! Please install it and run this again"
 else
 	rm -rf "./libs/"
