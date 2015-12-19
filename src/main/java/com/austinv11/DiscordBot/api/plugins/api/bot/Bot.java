@@ -1,10 +1,7 @@
 package com.austinv11.DiscordBot.api.plugins.api.bot;
 
 import com.austinv11.DiscordBot.DiscordBot;
-import com.austinv11.DiscordBot.api.plugins.api.discord.ScriptChannel;
-import com.austinv11.DiscordBot.api.plugins.api.discord.ScriptGuild;
-import com.austinv11.DiscordBot.api.plugins.api.discord.ScriptPrivateChannel;
-import com.austinv11.DiscordBot.api.plugins.api.discord.ScriptUser;
+import com.austinv11.DiscordBot.api.plugins.api.discord.*;
 import sx.blah.discord.handle.obj.Guild;
 
 import javax.script.ScriptEngine;
@@ -48,6 +45,28 @@ public class Bot {
 	 */
 	public ScriptUser getUserByID(String id) {
 		return new ScriptUser(DiscordBot.instance.getUserByID(id));
+	}
+	
+	/**
+	 * Attempts to get a message from its string id
+	 * @param id The id for a message
+	 * @return The message, or null if not found
+	 * @throws Exception
+	 */
+	public ScriptMessage getMessageByID(String id) throws Exception {
+		for (ScriptGuild guild : getConnectedGuilds()) {
+			for (ScriptChannel channel : guild.getChannels())
+				if (channel.getMessageByID(id) != null)
+					return channel.getMessageByID(id);
+			
+			for (ScriptUser user : guild.getUsers()) {
+				ScriptPrivateChannel channel = getPrivateChannel(user);
+				if (channel.getMessageByID(id) != null)
+					return channel.getMessageByID(id);
+			}
+		}
+		
+		return null;
 	}
 	
 	/**

@@ -7,7 +7,7 @@ A feature-packed and moddable bot for Discord. See the [wiki](https://github.com
 
 1. [Clone the repository](https://help.github.com/articles/cloning-a-repository/)
 2. In the IDE of your choice, import the project as a gradle project.
-3. (Disclaimer: I am writing this with IntelliJ IDEA in mind, please do your IDE's equivalent instead if you aren't using IntelliJ) Either mark the following directories as source roots: `Discord4J/src/main/java` and `nanohttpd/core/src/main/java` or mark the binaries in the `libs` directory as libraries/dependencies.
+3. (Disclaimer: I am writing this with IntelliJ IDEA in mind, please do your IDE's equivalent instead if you aren't using IntelliJ) Mark the following directories as source roots: `Discord4J/src/main/java` and `nanohttpd/core/src/main/java` and mark the binaries in the `libs` directory as libraries/dependencies.
 
 ### Coding Conventions
 

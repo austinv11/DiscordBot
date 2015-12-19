@@ -54,7 +54,7 @@ public class ScriptChannel {
 	 * @return The message (if found)
 	 */
 	public ScriptMessage getMessageByID(String id) {
-		return new ScriptMessage(javaChannel.getMessageByID(id));
+		return javaChannel.getMessageByID(id) == null ? null : new ScriptMessage(javaChannel.getMessageByID(id));
 	}
 	
 	/**

@@ -1,5 +1,6 @@
 package com.austinv11.DiscordBot.api.plugins.api.discord;
 
+import com.austinv11.DiscordBot.DiscordBot;
 import com.austinv11.DiscordBot.api.plugins.api.util.Time;
 import org.json.simple.parser.ParseException;
 import sx.blah.discord.handle.obj.Message;
@@ -76,5 +77,22 @@ public class ScriptMessage {
 	public void reply(ScriptMessage message) {
 		new MessageBuilder().withContent(getAuthor().mention()+" "+message.getContent())
 				.withChannel(javaMessage.getChannel()).build();
+	}
+	
+	/**
+	 * Attempts to delete the message
+	 * @throws IOException
+	 */
+	public void delete() throws IOException {
+		DiscordBot.instance.deleteMessage(javaMessage.getID(), javaMessage.getChannel().getID());
+	}
+	
+	/**
+	 * Attempts to edit the message
+	 * @param newContent The new content of the message (Discord only currently supports editing your own message for some reason)
+	 * @throws ParseException
+	 */
+	public void edit(String newContent) throws ParseException {
+		DiscordBot.instance.editMessage(newContent, javaMessage.getID(), javaMessage.getChannel().getID());
 	}
 }
