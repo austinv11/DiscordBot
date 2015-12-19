@@ -8,16 +8,29 @@
       "name": "spam",
       "aliases": [],
       "removes_command_message": false,
-      "usage": "%CONTEXT.plugin.commands[0].name;% <message>",
+      "usage": "%CONTEXT.plugin.commands[0].name;% [message]",
       "help_message": "Spams a message for a set amount of times",
       "permission_level": "%PermissionsLevel.ADMINISTRATOR;%",
       "executor": "commands/spam.js"
+    },
+    {
+      "name": "animate",
+      "aliases": [],
+      "removes_command_message": true,
+      "usage": "%CONTEXT.plugin.commands[1].name;% [semi-colon separated list of frames]",
+      "help_message": "Creates an animated message",
+      "permission_level": "%PermissionsLevel.ANYONE;%",
+      "executor": "commands/animate.js"
     }
   ],
   "event_handlers": [
     {
       "script": "events/init_handler.js",
       "event_filter": "InitEvent"
+    },
+    {
+      "script": "events/alarm_handler.js",
+      "event_filter": "AlarmEvent"
     }
   ]
 }

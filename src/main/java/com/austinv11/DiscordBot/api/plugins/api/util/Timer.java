@@ -24,7 +24,7 @@ public class Timer {
 		final UUID id = getUUID();
 		new Thread(()->{
 			try {
-				wait(alarmTime);
+				Thread.sleep(alarmTime);
 				new AlarmEvent(id).propagate();
 			} catch (InterruptedException e) {
 				e.printStackTrace();

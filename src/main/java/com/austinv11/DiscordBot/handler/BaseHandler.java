@@ -42,14 +42,6 @@ public class BaseHandler {
 	@EventSubscriber
 	public void mentionEvent(MentionEvent event) {
 		Logger.log(Logger.Level.DEBUG, "Bot mentioned in message: "+event.getMessage());
-		try {
-			if (event.getMessage().getContent().contains("https://discord.gg/")
-					|| event.getMessage().getContent().contains("http://discord.gg/")) {
-				DiscordBot.acceptInvite(event.getMessage().getContent());
-				}
-		} catch (Exception e) {
-			Logger.log(e);
-		}
 		new MentionScriptEvent(event).propagate();
 	}
 	
