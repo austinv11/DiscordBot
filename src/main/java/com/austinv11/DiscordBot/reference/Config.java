@@ -19,9 +19,9 @@ public class Config {
 	 */
 	public int cooldownTime = 10;
 	/**
-	 * The file name for the permissions database
+	 * The file name for the database
 	 */
-	public String databaseFile = "permissions.db";
+	public String databaseFile = "bot.db";
 	/**
 	 * Set to true to enable the server front end
 	 */

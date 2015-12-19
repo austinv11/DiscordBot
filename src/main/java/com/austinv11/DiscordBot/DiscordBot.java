@@ -136,6 +136,7 @@ public class DiscordBot {
 				db.createTable("COMMANDS", new Database.Key("COMMAND", "TEXT", "PRIMARY KEY NOT NULL"), new Database.Key("PERMISSION_LEVEL", "INT", "NOT NULL"));
 				db.createTable("USERS", new Database.Key("ID", "TEXT", "PRIMARY KEY NOT NULL"), new Database.Key("PERMISSION_LEVEL", "INT", "NOT NULL"));
 				db.createTable("PERMISSION_RANKS", new Database.Key("RANK", "TEXT", "PRIMARY KEY NOT NULL"), new Database.Key("PERMISSION_LEVEL", "INT", "NOT NULL"));
+				db.createTable("ALIASES", new Database.Key("NAME", "TEXT", "PRIMARY KEY NOT NULL"), new Database.Key("COMMAND", "TEXT", "NOT NULL"));
 				
 				db.insert("PERMISSION_RANKS", new String[]{"RANK", "PERMISSION_LEVEL"}, new String[]{"'Owner'", String.valueOf(ICommand.OWNER)});
 				db.insert("PERMISSION_RANKS", new String[]{"RANK", "PERMISSION_LEVEL"}, new String[]{"'Anyone'", String.valueOf(ICommand.ANYONE)});
@@ -159,6 +160,7 @@ public class DiscordBot {
 			CommandRegistry.registerCommand(new PingCommand());
 			CommandRegistry.registerCommand(new PluginsCommand());
 			CommandRegistry.registerCommand(new ShutdownCommand());
+			CommandRegistry.registerCommand(new AliasCommand());
 			
 			ownerId = credentials[2];
 			
@@ -202,6 +204,20 @@ public class DiscordBot {
 			}
 			for (Plugin plugin : plugins) {
 				new InitEvent(plugin.manifest).propagate();
+			}
+			
+			try {
+				ResultSet set = db.openSelect("ALIASES");
+				HashMap<String, String> aliases = new HashMap<>();
+				while (set.next()) {
+					aliases.put(set.getString("NAME"), set.getString("COMMAND"));
+				}
+				db.closeSelect();
+				for (String key : aliases.keySet()) {
+					CommandRegistry.registerAlias(key, aliases.get(key));
+				}
+			} catch (Exception e) {
+				Logger.log(e);
 			}
 			
 		} catch (Exception e) {
@@ -258,13 +274,13 @@ public class DiscordBot {
 	public static String doesCommandMatch(ICommand command, String message) {
 		if (message.startsWith(String.valueOf(CONFIG.commandDiscriminator))) {
 			message = message.replaceFirst(String.valueOf(CONFIG.commandDiscriminator), "");
-			String commandName = message.contains(" ") ? message.split(" ")[0] : message;
-			if (command.getCommand().equals(commandName))
-				return commandName;
-			for (String alias : command.getAliases())
-				if (commandName.equals(alias))
-					return alias;
 		}
+		String commandName = message.contains(" ") ? message.split(" ")[0] : message;
+		if (command.getCommand().equals(commandName))
+			return commandName;
+		for (String alias : command.getAliases())
+			if (commandName.equals(alias))
+				return alias;
 		return null;
 	}
 	
