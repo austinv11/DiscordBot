@@ -32,6 +32,7 @@ public class BaseHandler {
 	public void inviteReceivedEvent(InviteReceivedEvent event) {
 		try {
 			Logger.log("Invite for the '"+event.getInvite().details().getChannelName()+"' channel received");
+			DiscordBot.acceptInvite(event.getMessage().getContent());
 		} catch (Exception e) {
 			Logger.log(e);
 		}
