@@ -230,4 +230,10 @@ public class BaseHandler {
 		Logger.log("Guild "+event.getGuild().getName()+" left");
 		new GuildLeaveScriptEvent(event).propagate();
 	}
+	
+	@EventSubscriber
+	public void gameChangeEvent(GameChangeEvent event) {
+		Logger.log("User "+event.getUser().getName()+" is now playing "+DiscordBot.instance.getGameByID(event.getNewGameID()).orElse(null));
+		new GameChangeScriptEvent(event).propagate();
+	}
 }

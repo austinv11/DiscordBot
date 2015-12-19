@@ -1,5 +1,6 @@
 package com.austinv11.DiscordBot.api.plugins.api.discord;
 
+import com.austinv11.DiscordBot.DiscordBot;
 import sx.blah.discord.handle.obj.User;
 
 /**
@@ -52,5 +53,13 @@ public class ScriptUser {
 	 */
 	public String mention() {
 		return javaUser.mention();
+	}
+	
+	/**
+	 * Gets the game the user is currently playing
+	 * @return The name of the game, or null if the user isn't currently playing a game
+	 */
+	public String getGame() {
+		return DiscordBot.instance.getGameByID(javaUser.getGameID().orElse(null)).orElse(null);
 	}
 }

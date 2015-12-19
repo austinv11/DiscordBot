@@ -117,4 +117,13 @@ public class Bot {
 	public void restart() {
 		DiscordBot.restart();
 	}
+	
+	/**
+	 * Changes the presence of the bot
+	 * @param isIdle Set to true to make the bot "idle" or false to make the bot "online"
+	 * @param game (Can be null) The EXACT name of the game the bot is playing (NOTE: Discord doesn't support custom names, so if Discord doesn't recognize the game it won't show up)
+	 */
+	public void updatePresence(boolean isIdle, String game) {
+		DiscordBot.instance.updatePresence(isIdle, DiscordBot.instance.getGameIDByGame(game));
+	}
 }

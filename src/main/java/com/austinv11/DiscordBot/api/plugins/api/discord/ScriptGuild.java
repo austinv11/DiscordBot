@@ -74,4 +74,20 @@ public class ScriptGuild {
 	public String getID() {
 		return javaGuild.getID();
 	}
+	
+	/**
+	 * Gets the url leading to the guild's icon
+	 * @return The icon url
+	 */
+	public String geticonURL() {
+		return javaGuild.getIconURL();
+	}
+	
+	/**
+	 * Gets the guild owner's id
+	 * @return The owner's id
+	 */
+	public String getOwnerID() {
+		return javaGuild.getOwnerID();
+	}
 }
