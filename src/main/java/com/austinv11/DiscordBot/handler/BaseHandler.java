@@ -152,14 +152,6 @@ public class BaseHandler {
 				//Not a command, cache it and check for table disrespect
 				DiscordBot.messageCache.get(message.getChannel().getID()).put(message.getID(), new Message(message.getID(), 
 						message.getContent(), message.getAuthor(), message.getChannel(), message.getTimestamp()));
-				
-				if (DiscordBot.CONFIG.enableRespectTables) {
-					if (message.getContent().contains("(╯°□°）╯︵ ┻━┻")) {
-						//Please respect tables
-						new MessageBuilder().withContent("┬─┬ノ(ಠ_ಠノ)\nPlease respect tables")
-								.withChannel(message.getChannel()).build();
-					}
-				}
 			}
 		}
 		

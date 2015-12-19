@@ -34,8 +34,4 @@ public class Config {
 	 * The port for the server front end to use
 	 */
 	public int port = 8080;
-	/**
-	 * Set to true to make the bot remind people to not flip tables
-	 */
-	public boolean enableRespectTables = true;
 }
