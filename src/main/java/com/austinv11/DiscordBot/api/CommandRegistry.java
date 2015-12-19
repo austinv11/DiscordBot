@@ -72,14 +72,33 @@ public class CommandRegistry {
 			DiscordBot.db.closeSelect();
 			if (exists && needsUpdate) {
 				HashMap<String, String> key = new HashMap<>();
-				key.put("COMMAND", commandSequence);
-				DiscordBot.db.update("ALIASES", "NAME", alias, key);
+				key.put("COMMAND", "'"+commandSequence+"'");
+				DiscordBot.db.update("ALIASES", "NAME", "'"+alias+"'", key);
 			} else if (!exists) {
 				DiscordBot.db.insert("ALIASES", new String[]{"NAME", "COMMAND"}, new String[]{"'"+alias+"'", "'"+commandSequence+"'"});
 			}
+			if (exists)
+				removeAlias(alias);
 			commands.add(new GhostCommand(alias, commandSequence));
 		} catch (SQLException e) {
 			Logger.log(e);
+		}
+	}
+	
+	/**
+	 * Removes the specified alias
+	 * @param alias The alias to remove
+	 * @throws SQLException
+	 */
+	public static void removeAlias(String alias) throws SQLException {
+		DiscordBot.db.delete("ALIASES", "NAME", "'"+alias+"'");
+		for (ICommand command : commands) {
+			if (command instanceof GhostCommand) {
+				if (command.getCommand().equals(alias)) {
+					commands.remove(command);
+					return;
+				}
+			}
 		}
 	}
 	
@@ -141,7 +160,7 @@ public class CommandRegistry {
 		
 		@Override
 		public String getHelpMessage() {
-			return "This command represents an alias for ```"+toExecute+"```";
+			return "This command represents an alias for \""+toExecute+"\"";
 		}
 		
 		@Override

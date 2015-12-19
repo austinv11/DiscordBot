@@ -161,6 +161,8 @@ public class DiscordBot {
 			CommandRegistry.registerCommand(new PluginsCommand());
 			CommandRegistry.registerCommand(new ShutdownCommand());
 			CommandRegistry.registerCommand(new AliasCommand());
+			CommandRegistry.registerCommand(new SayCommand());
+			CommandRegistry.registerCommand(new RemoveCommand());
 			
 			ownerId = credentials[2];
 			
@@ -174,6 +176,7 @@ public class DiscordBot {
 			addGlobalScriptBinding(Time.class);
 			addGlobalScriptBinding(Log.class);
 			addGlobalScriptBinding(Bot.class);
+			
 			for (ScriptEngineFactory factory : scriptEngineManager.getEngineFactories()) {
 				Logger.log("Loaded script engine '"+factory.getEngineName()+"' v"+factory.getEngineVersion()+
 						" for language: "+factory.getLanguageName()+" v"+factory.getLanguageVersion());
@@ -206,7 +209,7 @@ public class DiscordBot {
 				new InitEvent(plugin.manifest).propagate();
 			}
 			
-			try {
+			try { //Done after all commands are registered
 				ResultSet set = db.openSelect("ALIASES");
 				HashMap<String, String> aliases = new HashMap<>();
 				while (set.next()) {
