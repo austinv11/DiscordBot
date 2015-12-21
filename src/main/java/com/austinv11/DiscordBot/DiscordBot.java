@@ -156,7 +156,6 @@ public class DiscordBot {
 			CommandRegistry.registerCommand(new PermissionsCommand());
 			CommandRegistry.registerCommand(new PurgeCommand());
 			CommandRegistry.registerCommand(new ShrugCommand());
-			CommandRegistry.registerCommand(new NLPCommand());
 			CommandRegistry.registerCommand(new PingCommand());
 			CommandRegistry.registerCommand(new PluginsCommand());
 			CommandRegistry.registerCommand(new ShutdownCommand());
