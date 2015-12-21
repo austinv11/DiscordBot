@@ -199,7 +199,11 @@ public class DiscordBot {
 			if (pluginFiles != null && pluginFiles.length > 0) {
 				plugins = new Plugin[pluginFiles.length];
 				for (int i = 0; i < pluginFiles.length; i++) {
-					plugins[i] = new Plugin(pluginFiles[i]);
+					try {
+						plugins[i] = new Plugin(pluginFiles[i]);
+					} catch (Exception e) {
+						Logger.log(Logger.Level.WARNING, "There was an error initializing plugin "+pluginFiles[i]);
+					}
 					Logger.log("Plugin '"+plugins[i].manifest.plugin_id+"' v"+plugins[i].manifest.version+" loaded ("+
 							(i+1)+"/"+pluginFiles.length+")");
 				}
