@@ -108,7 +108,8 @@ public class Plugin {
 						try {
 							ScriptEngine engine = DiscordBot.getScriptEngineForLang(command.executor.split("\\.")[1]);
 							engine.put("CONTEXT", new CommandContext(parameters, executor, channel, commandMessage, plugin.manifest));
-							return Optional.of(String.valueOf(engine.eval(contents)));
+							Object val = engine.eval(contents);
+							return Optional.ofNullable(val == null || !isTypeValidMessage(val) ? null : String.valueOf(val));
 						} catch (ScriptException e) {
 							Logger.log(e);
 							return Optional.of("Script error for plugin '"+manifest.plugin_id+"', see the bot's log for details");
@@ -125,6 +126,10 @@ public class Plugin {
 				eventHandlers.put(handler.event_filter, contents);
 			}
 		}
+	}
+	
+	private boolean isTypeValidMessage(Object obj) {
+		return obj instanceof Boolean || obj instanceof String || obj instanceof Character || obj instanceof Number;
 	}
 	
 	private void insertProperInfo(Object toInsertInto) throws IllegalAccessException {
