@@ -36,6 +36,11 @@ public class WhoisCommand implements ICommand {
 	public String getHelpMessage() {
 		return "This command will retrieve internal api information about a guild, channel or user";
 	}
+
+	@Override
+	public boolean isConsoleExecutionAllowed() {
+		return true;
+	}
 	
 	@Override
 	public int getDefaultPermissionLevel() {

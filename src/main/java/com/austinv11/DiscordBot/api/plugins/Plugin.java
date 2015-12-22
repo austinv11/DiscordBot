@@ -102,6 +102,11 @@ public class Plugin {
 					public int getDefaultPermissionLevel() {
 						return DiscordBot.getLevelForRank(command.permission_level);
 					}
+
+					@Override
+					public boolean isConsoleExecutionAllowed() {
+						return command.executable_by_console;
+					}
 					
 					@Override
 					public Optional<String> executeCommand(String parameters, User executor, Channel channel, Message commandMessage) throws CommandSyntaxException {

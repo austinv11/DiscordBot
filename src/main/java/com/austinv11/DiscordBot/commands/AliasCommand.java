@@ -41,6 +41,11 @@ public class AliasCommand implements ICommand {
 	public int getDefaultPermissionLevel() {
 		return ICommand.ADMINISTRATOR;
 	}
+
+	@Override
+	public boolean isConsoleExecutionAllowed() {
+		return true;
+	}
 	
 	@Override
 	public Optional<String> executeCommand(String parameters, User executor, Channel channel, Message commandMessage) throws CommandSyntaxException {

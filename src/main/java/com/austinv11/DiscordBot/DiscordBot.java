@@ -15,6 +15,7 @@ import com.austinv11.DiscordBot.api.plugins.api.util.Time;
 import com.austinv11.DiscordBot.api.plugins.api.util.Timer;
 import com.austinv11.DiscordBot.commands.*;
 import com.austinv11.DiscordBot.handler.BaseHandler;
+import com.austinv11.DiscordBot.handler.ConsoleInputHandler;
 import com.austinv11.DiscordBot.handler.Logger;
 import com.austinv11.DiscordBot.reference.Config;
 import com.austinv11.DiscordBot.reference.Database;
@@ -225,6 +226,9 @@ public class DiscordBot {
 			} catch (Exception e) {
 				Logger.log(e);
 			}
+
+			ConsoleInputHandler inputHandler = new ConsoleInputHandler();
+			inputHandler.thread.start();
 			
 		} catch (Exception e) {
 			Logger.log(e);
