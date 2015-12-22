@@ -40,7 +40,12 @@ public class RestartCommand implements ICommand {
 	public int getDefaultPermissionLevel() {
 		return ICommand.OWNER;
 	}
-	
+
+	@Override
+	public boolean isConsoleExecutionAllowed() {
+		return true;
+	}
+
 	@Override
 	public Optional<String> executeCommand(String parameters, User executor, Channel channel, Message commandMessage) throws CommandSyntaxException {
 		DiscordBot.restart();

@@ -37,6 +37,11 @@ public class PluginsCommand implements ICommand {
 	public String getHelpMessage() {
 		return "This command lists all the loaded plugins or it lists the details regarding a specific plugin if a name is provided";
 	}
+
+	@Override
+	public boolean isConsoleExecutionAllowed() {
+		return true;
+	}
 	
 	@Override
 	public int getDefaultPermissionLevel() {

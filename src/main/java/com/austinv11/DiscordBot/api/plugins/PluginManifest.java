@@ -62,6 +62,10 @@ public class PluginManifest {
 		 * The script to be called when the command is used
 		 */
 		public String executor;
+		/**
+		 * Whether this command can be executed by console
+		 */
+		public boolean executable_by_console;
 	}
 	
 	public static class EventHandler {
