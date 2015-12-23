@@ -11,7 +11,8 @@
       "usage": "%CONTEXT.plugin.commands[0].name;% [message]",
       "help_message": "Spams a message for a set amount of times",
       "permission_level": "%PermissionsLevel.ADMINISTRATOR;%",
-      "executor": "commands/spam.js"
+      "executor": "commands/spam.js",
+      "executable_by_console": false
     },
     {
       "name": "animate",
@@ -20,7 +21,8 @@
       "usage": "%CONTEXT.plugin.commands[1].name;% [semi-colon separated list of frames]",
       "help_message": "Creates an animated message",
       "permission_level": "%PermissionsLevel.ANYONE;%",
-      "executor": "commands/animate.js"
+      "executor": "commands/animate.js",
+      "executable_by_console": false
     }
   ],
   "event_handlers": [

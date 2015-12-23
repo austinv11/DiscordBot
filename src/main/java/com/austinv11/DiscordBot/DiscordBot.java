@@ -208,9 +208,9 @@ public class DiscordBot {
 					Logger.log("Plugin '"+plugins[i].manifest.plugin_id+"' v"+plugins[i].manifest.version+" loaded ("+
 							(i+1)+"/"+pluginFiles.length+")");
 				}
-			}
-			for (Plugin plugin : plugins) {
-				new InitEvent(plugin.manifest).propagate();
+				for (Plugin plugin : plugins) {
+					new InitEvent(plugin.manifest).propagate();
+				}
 			}
 			
 			try { //Done after all commands are registered
