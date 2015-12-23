@@ -25,16 +25,17 @@ public interface IScriptEvent {
 	 * Propagates the event to all the proper event handlers
 	 */
 	default void propagate() {
-		for (Plugin plugin : DiscordBot.plugins)
-			for (PluginManifest.EventHandler handler : plugin.manifest.event_handlers)
-				if (handler.event_filter.equals(getName())) {
-					try {
-						ScriptEngine engine = DiscordBot.getScriptEngineForLang(handler.script.split("\\.")[1]);
-						engine.put("CONTEXT", new EventContext(this, plugin.manifest));
-						engine.eval(plugin.eventHandlers.get(getName()));
-					} catch (ScriptException e) {
-						Logger.log(e);
+		if (DiscordBot.plugins != null)
+			for (Plugin plugin : DiscordBot.plugins)
+				for (PluginManifest.EventHandler handler : plugin.manifest.event_handlers)
+					if (handler.event_filter.equals(getName())) {
+						try {
+							ScriptEngine engine = DiscordBot.getScriptEngineForLang(handler.script.split("\\.")[1]);
+							engine.put("CONTEXT", new EventContext(this, plugin.manifest));
+							engine.eval(plugin.eventHandlers.get(getName()));
+						} catch (ScriptException e) {
+							Logger.log(e);
+						}
 					}
-				}
 	}
 }
