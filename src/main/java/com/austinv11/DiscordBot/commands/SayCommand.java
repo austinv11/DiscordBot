@@ -77,7 +77,7 @@ public class SayCommand implements ICommand {
 				return Optional.of("Channel not found.");
 			}
 
-			new MessageBuilder().withContent(parameters.substring(parameters.indexOf(' '))).withChannel(channel).build();
+			new MessageBuilder().withContent(parameters.substring(parameters.indexOf(' ') + 1)).withChannel(channel).build();
 			return Optional.empty();
 		} else {
 			return Optional.of(parameters);
