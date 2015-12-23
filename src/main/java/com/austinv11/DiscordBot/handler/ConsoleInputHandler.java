@@ -27,9 +27,7 @@ public class ConsoleInputHandler implements Runnable {
 					if (command.isConsoleExecutionAllowed()) {
 						try {
 							Optional<String> result = command.executeCommand(input.contains(" ") ? input.replaceFirst(input.split(" ")[0]+" ", "") : "", DiscordBot.instance.getOurUser(), null, null);
-							if (result.get() == null) {
-								Logger.log("null");
-							} else {
+							if (result.isPresent()) {
 								Logger.log(result.get());
 							}
 						} catch (CommandSyntaxException e) {
